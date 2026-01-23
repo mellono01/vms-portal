@@ -1,0 +1,50 @@
+{
+  "name": "reactjs-poc",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "start:local": "next dev",
+    "build:test": "cp ./env/.env.test .env.production && NODE_ENV=production && next build",
+    "build:uat": "cp ./env/.env.uat .env.production && NODE_ENV=production && next build",
+    "build:prod": "cp ./env/.env.prod .env.production && NODE_ENV=production && next build",
+    "build:docker:test": "docker build --build-arg environment='test' -t feathery-test-harness .",
+    "build:docker:uat": "docker build --build-arg environment='uat' -t feathery-test-harness .",
+    "build:docker:prod": "docker build --build-arg environment='prod' -t feathery-test-harness .",
+    "start": "next start",
+    "docker:start": "docker run -p 3000:3000 feathery-test-harness",
+    "docker:stop": "docker stop feathery-test-harness",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@auth/mongodb-adapter": "^3.4.2",
+    "@emotion/cache": "^11.13.1",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@feathery/react": "^2.18.0",
+    "@mui/icons-material": "^6.1.1",
+    "@mui/material": "^6.1.1",
+    "@mui/material-nextjs": "^6.1.1",
+    "@mui/system": "^6.1.1",
+    "@mui/x-date-pickers": "^8.25.0",
+    "@tanstack/react-query": "^5.52.0",
+    "abort-controller": "^3.0.0",
+    "dayjs": "^1.11.19",
+    "env-cmd": "^10.1.0",
+    "mongodb": "^6.8.0",
+    "next": "^14.2.25",
+    "node-fetch": "^3.3.2",
+    "react": "^18",
+    "react-dom": "^18",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "^15.0.0-canary.130",
+    "eslint-config-prettier": "^9.1.0",
+    "typescript": "^5"
+  }
+}

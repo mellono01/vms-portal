@@ -1,0 +1,52 @@
+{
+  "forms": [
+    {
+      "formName": "Change of Employment (Staging)",
+      "liveId": "HvuI5j",
+      "testId": "TrvQW3",
+      "uat": {
+        "showTest": true
+      }
+    },
+    {
+      "formName": "Change of Employment",
+      "liveId": "a0EpmE",
+      "testId": "",
+      "uat": {
+        "showLive": true
+      }
+    },
+    {
+      "formName": "Travel Claim (Staging)",
+      "liveId": "62nTFG",
+      "testId": "rFETcQ",
+      "uat": {
+        "showTest": true
+      }
+    },
+    {
+      "formName": "End of Employment Form (Staging)",
+      "liveId": "oEcpo6",
+      "testId": "EYeaC3",
+      "uat": {
+        "showTest": true
+      }
+    },
+    {
+      "formName": "End of Employment Form",
+      "liveId": "Kq6P3S",
+      "testId": "",
+      "uat": {
+        "showLive": true
+      }
+    },
+    {
+      "formName": "Travel Claim",
+      "liveId": "m0aS2t",
+      "testId": "",
+      "uat": {
+        "showLive": true
+      }
+    }
+  ]
+}
