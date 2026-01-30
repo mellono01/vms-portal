@@ -14,8 +14,14 @@ import { init, Form, FormContext } from '@feathery/react';
 
 import { useStore } from '@/lib/providers/storeProvider';
 
-export default function FeatheryForm() {
+export default function FeatheryForm({
+  from
+}: {
+  from: 'upgrade' | 'new' | 'new-existing'
+}) {
   const {
+    signInDetails,
+    signUpDetails,
     userData,
     selectedForm,
   } = useStore((store) => store);
@@ -30,9 +36,36 @@ export default function FeatheryForm() {
   init(featherySdk, {
     _enterpriseRegion: 'au' 
   });
-  const context = useRef<FormContext>(null);
 
+  const context = useRef<FormContext>(null);
   // console.log('[Feathery Context]', context.current?.formName);
+
+  const initialValues = {
+    VMS_FirstName: '', 
+    VMS_MiddleName: '', 
+    VMS_LastName: '', 
+    VMS_DOB: '', 
+    VMS_Email: '', 
+    VMS_Phone: ''
+  }
+
+  if (from === 'new') {
+    initialValues.VMS_FirstName = signUpDetails?.FirstName || '';
+    initialValues.VMS_LastName = signUpDetails?.LastName || '';
+    initialValues.VMS_Email = signUpDetails?.Email || '';
+  }
+
+  if (from === 'new-existing' || from === 'upgrade') {
+    initialValues.VMS_FirstName = userData?.FirstName || '';
+    initialValues.VMS_MiddleName = userData?.MiddleName || '';
+    initialValues.VMS_LastName = userData?.LastName || '';
+    initialValues.VMS_DOB = userData?.DateOfBirth || '';
+
+    if (from === 'upgrade') {
+      initialValues.VMS_Email = userData?.EmailAddress || '';
+      initialValues.VMS_Phone = userData?.PhoneNumber || '';
+    }
+  }
 
   // Show the Feathery form
   return (
@@ -50,14 +83,7 @@ export default function FeatheryForm() {
       <Form 
         formId='avGDYr' 
         contextRef={context}
-        initialValues={{
-          VMS_FirstName: userData?.FirstName || '', 
-          VMS_MiddleName: userData?.MiddleName || '', 
-          VMS_LastName: userData?.LastName || '', 
-          VMS_DOB: userData?.DateOfBirth || '', 
-          VMS_Email: selectedForm?.EmailAddress || '', 
-          VMS_Phone: selectedForm?.PhoneNumber || ''
-        }}
+        initialValues={initialValues}
       />
     </Box>
   );

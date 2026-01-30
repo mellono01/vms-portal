@@ -26,6 +26,8 @@ import {
 	Dangerous,
 	Error,
   ErrorOutline,
+	ExpandLess,
+	ExpandMore,
 	HelpOutline,
 	MoreVert,
 	Upgrade,
@@ -107,15 +109,15 @@ export const PlaceholderClearance = () => {
 								</Typography>
 						</Grid>
 				</Grid>
-		</CardContent>
-			<Divider sx={{color: 'darkGrey'}}/>
+			</CardContent>
+			{/* <Divider sx={{color: 'darkGrey'}}/>
 			<CardActions sx={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'100%'}}>
 				<Box sx={{width: '90px', height: '28px', backgroundColor: 'lightgrey', m:0.5}}></Box>
 				<Box sx={{display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center'}}>
 					<Box sx={{width: '60px', height: '28px', backgroundColor: 'lightgrey', m:0.5}}></Box>
 					<Box sx={{width: '50px', height: '28px', backgroundColor: 'lightgrey', m:0.5}}></Box>
 				</Box>
-			</CardActions>
+			</CardActions> */}
 		</Card>
 	);
 }
@@ -283,23 +285,25 @@ const ShowClearances = ({
 												</Typography>
 											</Box>
 											{
-												(
-													form.FormType.id === process.env.NEXT_PUBLIC_FORM_TYPES_CONTRACTOREXEMPT ||
-													form.FormType.id === process.env.NEXT_PUBLIC_FORM_TYPES_VOLUNTEEREXEMPT
-												) && (
-													<Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-														<NextLink href="/clearance/upgrade">
-															<Tooltip title="Upgrade Clearance" placement="top" slotProps={{ tooltip: { sx: { fontSize: '14px' } } }}>
-																<IconButton size='small' onClick={() => setSelectedForm(form)}>
-																	<Upgrade sx={{ fontSize: '28px' }}/>
-																</IconButton>
-															</Tooltip>
-															{/* <Typography variant='body2' sx={{color: 'gray'}}>
-																Upgrade
-															</Typography> */}
-														</NextLink>
-													</Box>
-												)
+												// (
+												// 	form.FormType.id === process.env.NEXT_PUBLIC_FORM_TYPES_CONTRACTOREXEMPT ||
+												// 	form.FormType.id === process.env.NEXT_PUBLIC_FORM_TYPES_VOLUNTEEREXEMPT
+												// ) && (
+												// 	<Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+												//  <NextLink href="/clearance/upgrade">
+												// 	<Tooltip title="Upgrade Clearance" placement="top" slotProps={{ tooltip: { sx: { fontSize: '14px' } } }}>
+												// 		<IconButton size='small' onClick={() => setSelectedForm(form)}>
+												// 			<Upgrade sx={{ fontSize: '28px' }}/>
+												// 		</IconButton>
+												// 	</Tooltip>
+												// </NextLink>
+												// 	</Box>
+												// )
+												<Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+													<IconButton onClick={(event) => {setSelectedForm(form); handleOpenActionsMenu(event);}}>
+														<MoreVert />
+													</IconButton>
+												</Box>
 											}
 										</Box>
 									}
@@ -346,7 +350,7 @@ const ShowClearances = ({
 									// sx={{backgroundColor: cardColour}}
 								/>
 								<Divider sx={{color: 'darkGrey'}}/>
-								<CardContent sx={{display: 'flex', flexDirection:'column'}} >
+								<CardContent sx={{display: 'flex', flexDirection:'column', paddingBottom: 0}} >
 									<Grid container columns={!openDetails[form._id].expanded ? 4 : 5} spacing={1} sx={{mb:1}}>
 										<Grid size={!openDetails[form._id].expanded ? 1 : 2} sx={{display: 'flex', flexDirection: 'row', alignContent: 'center', alignItems: 'center'}}>
 											<Typography 
@@ -474,9 +478,23 @@ const ShowClearances = ({
 											</Grid>
 										</Grid>
 									</Collapse>
+									<Box sx={{display:'flex', flexDirection:'row', justifyContent:'center', width:'100%'}}>
+										<IconButton
+											onClick={() => handleCollapse(form._id)}
+										>
+											{openDetails[form._id].expanded ? <ExpandLess/> : <ExpandMore/>}
+										</IconButton>
+									</Box>
 								</CardContent>
 								<Divider sx={{color: 'darkGrey'}}/>
-								<CardActions sx={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'100%'}}>
+								{/* <CardActions sx={{display:'flex', flexDirection:'row', justifyContent:'center', width:'100%'}}>
+									<IconButton
+										onClick={() => handleCollapse(form._id)}
+									>
+										<ExpandMore/>
+									</IconButton>
+								</CardActions> */}
+								{/* <CardActions sx={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'100%'}}>
 										<Button
 											onClick={() => handleCollapse(form._id)}
 										>
@@ -505,7 +523,7 @@ const ShowClearances = ({
 												Edit
 											</Button>
 										</Box>
-								</CardActions>
+								</CardActions> */}
 							</Card>
 						)
 					})

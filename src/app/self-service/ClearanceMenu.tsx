@@ -43,8 +43,7 @@ export default function ClearanceMenu({
           {
             showUpgrade && (
               <NextLink 
-                href="/induction/new"
-                // to="/induction/new"
+                href="/clearance/upgrade"
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <MenuItem>

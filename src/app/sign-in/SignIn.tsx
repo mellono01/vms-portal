@@ -1,11 +1,12 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import NextLink from 'next/link'
 
 import {
   Box,
   Button,
-  Divider,
   TextField,
   Typography,
 } from '@mui/material';
@@ -13,83 +14,56 @@ import {
 import {
   useStore,
 } from '@/lib/providers/storeProvider'
-import { EntityForm } from '@/lib/dto/EntityForm.dto';
 
-const test_data: EntityForm = {
-  CedowToken: 'CEDOW12345',
-  FirstName: 'Anakin',
-  LastName: 'Skywalker',
-  DateOfBirth: '1990-01-01',
-  Forms: [
-    {
-      _id: '001',
-      FormType: {
-        id: '64757b03421f1c21d0ff602c',
-        Name: 'Volunteer',
-      },
-      FormStatus: {
-        id: '64757b0d421f1c21d0ff6035',
-        Name: 'Cleared',
-      },
-      Locations: [],
-      EmailAddress: 'anakin@skywalker.com',
-      PhoneNumber: '0400111222',
-      SubmittedDate: '01-12-2025',
-      ExpiryDate: '01-12-2026',
-      OrganisationName: 'Jedi Order',
-      OrganisationAbn: '066',
-      DescriptionOfServices: 'Teaching younglings',
-      WwccNumber: 'WWC6666666E',
-      WwccExpiryDate: '2026-12-31',
-      WwccVerificationDate: '2025-12-03',
-      CedowToken: '',
-      AuditUserId: null,
-      Deleted: false,
-      SchemaVersion: 0
-    },
-    {
-      _id: '002',
-      FormType: {
-        id: '64757b03421f1c21d0ff602f',
-        Name: 'ContractorExempt',
-      },
-      FormStatus: {
-        id: '64757b0d421f1c21d0ff6035',
-        Name: 'Cleared',
-      },
-      Locations: [],
-      EmailAddress: 'anakin@skywalker.com',
-      PhoneNumber: '0400111222',
-      SubmittedDate: '01-12-2025',
-      ExpiryDate: '01-12-2026',
-      OrganisationName: 'Jedi Order',
-      OrganisationAbn: '066',
-      DescriptionOfServices: 'Teaching younglings',
-      WwccNumber: 'WWC6666666V',
-      WwccExpiryDate: '2026-12-31',
-      WwccVerificationDate: '2025-12-03',
-      CedowToken: '',
-      AuditUserId: null,
-      Deleted: false,
-      SchemaVersion: 0
-    }
-  ],
-  _id: '',
-  Claims: [],
-  MiddleName: '',
-  Deleted: false,
-  SchemaVersion: 0,
-  AuditUserId: null
-};
+// API
+import getEntityForms from '@/lib/api/requests/getEntityForms';
 
 interface Props {}
 
 export default function SignIn({}: Props) {
+  const router = useRouter();
 
   const {
-    userData,
+    signInDetails,
+    setSignInDetails,
     setUserData,
   } = useStore((store) => store);
+  
+  // Page State
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [CedowToken, setCedowToken] = useState('DOW7410DE');
+  const [LastName, setLastName] = useState('ABBASI');
+
+  const handleCheck = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await getEntityForms({
+        CedowToken,
+        LastName,
+      });
+      
+      if(result.length > 0) {
+        setUserData(result[0]);
+        setSignInDetails({
+          CedowToken,
+          LastName,
+        });
+        router.push('/');
+      } else {
+        if (result.length === 0) {
+          throw new Error('The details entered do not match our records. Please try again or select "Forgot your Cedow Token?".');
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -100,6 +74,13 @@ export default function SignIn({}: Props) {
         <Typography variant='body1' sx={{mb:4}}>
           If you don't have a CEDoW Token and need one please <NextLink href='/sign-up'>sign up</NextLink>.
         </Typography>
+        { 
+          error && (
+            <Typography variant='body1' sx={{mb:4, color: 'red'}}>
+              {error}
+            </Typography>
+          )
+        }
         <Box sx={{display: 'flex', flexDirection: 'column', gap: 1}}>
           <TextField 
             id='textfield-token' 
@@ -107,6 +88,13 @@ export default function SignIn({}: Props) {
             variant='outlined' 
             size='small'
             sx={{width: '400px'}}
+            value={signInDetails?.CedowToken || ''}
+            onChange={(e) => {
+              setSignInDetails({
+                CedowToken: e.target.value, 
+                LastName: signInDetails?.LastName ?? null
+              })
+            }}
           />
           <TextField 
             id='textfield-lastName' 
@@ -114,14 +102,20 @@ export default function SignIn({}: Props) {
             variant='outlined' 
             size='small'
             sx={{width: '400px'}}
+            value={signInDetails?.LastName || ''}
+            onChange={(e) => {
+              setSignInDetails({
+                CedowToken: signInDetails?.CedowToken || '', 
+                LastName: e.target.value
+              })
+            }}
           />
         </Box>
-        <Button 
-          component={NextLink}
-          href='/'
+        <Button
           variant='contained' 
           sx={{mt: 2}}
-          onClick={()=>{setUserData(test_data);}}
+          disabled={loading}
+          onClick={()=>{handleCheck()}}
         >
           Go
         </Button>

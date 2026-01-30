@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import NextLink from 'next/link'
 
 import {
@@ -10,10 +12,62 @@ import {
   Typography,
 } from '@mui/material';
 
+// Store
+import {
+  useStore,
+} from '@/lib/providers/storeProvider'
+
+// API
+import postEntityExists from '@/lib/api/requests/postEntityExists';
+
 interface Props {}
 
 export default function SignUp({}: Props) {
+  const router = useRouter();
 
+  const {
+    signUpDetails,
+    setSignUpDetails,
+  } = useStore((store) => store);
+
+  // Page State
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [FirstName, setFirstName] = useState('Oliver');
+  const [LastName, setLastName] = useState('Mellon');
+  const [Email, setEmail] = useState('test@test.com');
+
+  const handleCheck = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await postEntityExists({
+        FirstName,
+        LastName,
+        Email,
+      });
+      
+      if(result && result.exists === false) {
+        console.log('Result from postEntityExists:', result);
+        setSignUpDetails({
+          FirstName,
+          LastName,
+          Email,
+        })
+        router.push('/clearance/new');
+      } else if (result) {
+        if (result.exists) {
+          throw new Error('We have found an existing record with the details provided. Please sign in instead.');
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
       <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '80%'}}>
@@ -23,6 +77,13 @@ export default function SignUp({}: Props) {
         <Typography variant='body1' sx={{mb:4, width: '95%', textAlign: 'center'}}>
           If you have already been issued a CEDoW Token please <NextLink href='/sign-in'>sign in</NextLink> instead.
         </Typography>
+        { 
+          error && (
+            <Typography variant='body1' sx={{mb:4, color: 'red'}}>
+              {error}
+            </Typography>
+          )
+        }
         <Box sx={{display: 'flex', flexDirection: 'column', gap: 1}}>
           <TextField 
             id='textfield-firstName' 
@@ -30,6 +91,8 @@ export default function SignUp({}: Props) {
             variant='outlined'
             size='small'
             sx={{width: '400px'}}
+            value={FirstName}
+            onChange={(e) => {setFirstName(e.target.value)}}
           />
           <TextField 
             id='textfield-lastName' 
@@ -37,6 +100,8 @@ export default function SignUp({}: Props) {
             variant='outlined' 
             size='small'
             sx={{width: '400px'}}
+            value={LastName}
+            onChange={(e) => {setLastName(e.target.value)}}
           />
           <TextField 
             id='textfield-email' 
@@ -44,11 +109,15 @@ export default function SignUp({}: Props) {
             variant='outlined' 
             size='small'
             sx={{width: '400px'}}
+            value={Email}
+            onChange={(e) => {setEmail(e.target.value)}}
           />
         </Box>
         <Button 
           variant='contained' 
           sx={{mt: 2}}
+          disabled={loading}
+          onClick={handleCheck}
         >
           Go
         </Button>
