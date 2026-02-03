@@ -53,29 +53,6 @@ const DeleteModal = ({
     }
     
     setClosingClearance(true);
-
-    // putForm({
-    //   authToken: undefined, 
-    //   formId: data?._id as string,
-    //   data: updatedForm
-    // })
-    // .then(() => {
-    //   setClosingClearance(false);
-    //   setLoadingUserData(true);
-    //   getUser()
-    //   .then(() => {
-    //     setLoadingUserData(false);
-    //     setOpen(false);
-    //   })
-    //   .catch((err) => {
-    //     console.log(err)
-    //     setLoadingUserData(false);
-    //   });
-    // })
-    // .catch((err) => {
-    //   console.log(err)
-    //   setClosingClearance(false);
-    // });
   }
 
   if(data !== null) {

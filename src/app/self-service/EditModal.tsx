@@ -34,6 +34,7 @@ import {
 
 // Constants
 import { 
+  dateTimeFormat,
   emailRegex, 
   phoneRegex
 } from '@/app/lib/constants/constants';
@@ -96,7 +97,7 @@ export const EditModal: React.FC<EditModalProps> = ({
 
 			if(wwccRequired && ((formData.WwccExpiryDate !== originalData?.WwccExpiryDate) || (formData.WwccNumber !== originalData?.WwccNumber))) {
 				updatedForm.FormStatus = {
-					id: process.env.VITE_FORM_STATUS_RENEWING,
+					id: process.env.VITE_FORM_STATUS_RENEWING ?? '',
 					Name: "Renewing"
 				}
 			}
@@ -135,7 +136,7 @@ export const EditModal: React.FC<EditModalProps> = ({
       setFormData({
         ...formData,
         FormStatus: {
-          id: process.env.NEXT_PUBLIC_FORM_STATUS_RENEWING,
+          id: process.env.NEXT_PUBLIC_FORM_STATUS_RENEWING ?? '',
           Name: 'Renewing'
         }
       });
@@ -147,8 +148,8 @@ export const EditModal: React.FC<EditModalProps> = ({
       setFormData({
         ...formData,
         FormStatus: {
-          id: selectedForm?.FormStatus.id,
-          Name: selectedForm?.FormStatus.Name
+          id: selectedForm?.FormStatus.id ?? '',
+          Name: selectedForm?.FormStatus.Name ?? ''
         }
       });
     }
