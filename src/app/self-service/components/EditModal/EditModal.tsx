@@ -23,14 +23,14 @@ import { useStore } from '@/lib/providers/storeProvider';
 
 // Components
 import { Modal } from '@/app/components/Modal';
-import ClearanceCard from './components/ClearanceCard';
+import { ClearanceCard } from '../ClearanceCard';
 
 // Helpers
 import {
   isWwccRequired,
   isDetailsValid,
   getStatusHelperText,
-} from './components/EditModal/handlers';
+} from './handlers';
 
 // Constants
 import { 

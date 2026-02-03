@@ -1,6 +1,7 @@
 'use client'
 
 import React from "react";
+import { useRouter } from 'next/navigation';
 
 import dayjs from "dayjs";
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -30,7 +31,9 @@ import {
   HelpOutline, 
   Warning, 
   ExpandLess, 
-  ExpandMore 
+  ExpandMore,
+  Add,
+  Circle
 } from "@mui/icons-material";
 
 // DTO
@@ -39,7 +42,7 @@ import type { Form } from '@/lib/dto/Form.dto';
 // Hooks
 import { useStatusColour } from '@/app/lib/hooks/useStatusColour';
 
-export default function ClearanceCard({
+export function ClearanceCard({
   mode,
   clearance,
   expanded,
@@ -452,5 +455,63 @@ console.log('[ClearanceCard] Clearance Data:', clearance);
         <Divider sx={{color: 'darkGrey'}}/>
       </Card>
     </>
+  );
+}
+
+export const PlaceholderClearance = () => {
+  const router = useRouter();
+  return (
+    <Card 
+      key={`selfservice-clearance-placeholder`} 
+      variant="outlined"
+      sx={{
+        minWidth: {
+          xs: '356px',
+          sm: '450px'
+        }, 
+        maxWidth: '450px',
+        flex: {
+          xs: '1 1 100%', // Full width on small screens
+          sm: '0 0 auto'  // Natural width on larger screens
+        },
+        mt:5,
+        mb:5,
+        cursor: 'pointer',
+        transition: 'all 0.2s ease-in-out',
+        '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: 4,
+            // borderColor: 'primary.main',
+        },
+        // border: '1px dashed',
+        // borderColor: 'grey.400'
+      }}
+      onClick={() => {
+        router.push('/clearance/new');
+      }}
+    >
+      <CardHeader 
+        title={
+          <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+            <Box sx={{width: '200px', height: '30px', backgroundColor: 'lightgrey'}}></Box>
+          </Box>
+        }
+        avatar={<Circle sx={{ fontSize: '35px', color: 'lightgrey' }} />}
+      />
+      <Divider sx={{color: 'darkGrey'}}/>
+      <CardContent sx={{display: 'flex', flexDirection:'column', minHeight: '128px', justifyContent: 'center', alignContent: 'center'}} >
+        <Grid container columns={5} spacing={1} sx={{ mb:1 }}>
+          <Grid size={5} sx={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: '100%', flexGrow: 1}}>
+            <Add sx={{ fontSize: '28px', color: 'grey', mr: 0.5, height: '100%' }}/>
+            <Typography 
+                variant="body1"
+                sx={{mr:0.5}}
+            >
+                Add New Clearance
+            </Typography>
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
   );
 }

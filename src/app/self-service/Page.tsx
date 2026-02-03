@@ -7,8 +7,9 @@ import {
   Box,
 } from '@mui/material';
 
-import Clearances, { PlaceholderClearance } from './Clearances';
+import Clearances from './Clearances';
 import PersonalDetails from './PersonalDetails';
+import { PlaceholderClearance } from './components/ClearanceCard';
 
 interface Props {}
 
