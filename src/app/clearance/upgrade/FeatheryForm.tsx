@@ -18,6 +18,7 @@ import {
 import { init, Form, FormContext } from '@feathery/react';
 
 import { useStore } from '@/lib/providers/storeProvider';
+import dayjs from 'dayjs';
 
 export default function FeatheryForm({
   from
@@ -31,7 +32,7 @@ export default function FeatheryForm({
     VMS_FirstName: '', 
     VMS_MiddleName: '', 
     VMS_LastName: '', 
-    VMS_DOB: '', 
+    VMS_DOB: undefined, 
     VMS_Email: '', 
     VMS_Phone: ''
   });
@@ -62,20 +63,19 @@ export default function FeatheryForm({
       let values = initialValues;
       if (from === 'new') {
         values.VMS_FirstName = session?.user?.FirstName || '';
+        values.VMS_MiddleName = session?.user?.MiddleName || '';
         values.VMS_LastName = session?.user?.LastName || '';
+        values.VMS_DOB = dayjs(session?.user?.DateOfBirth).format('YYYY-MM-DD') || undefined;
         values.VMS_Email = session?.user?.Email || '';
       }
 
-      if (from === 'new-existing' || from === 'upgrade') {
+      if (from === 'upgrade') {
         values.VMS_FirstName = session?.user?.FirstName || '';
         values.VMS_MiddleName = session?.user?.MiddleName || '';
         values.VMS_LastName = session?.user?.LastName || '';
-        values.VMS_DOB = session?.user?.DateOfBirth || '';
-
-        if (from === 'upgrade') {
-          values.VMS_Email = selectedForm?.EmailAddress || '';
-          values.VMS_Phone = selectedForm?.PhoneNumber || '';
-        }
+        values.VMS_DOB = dayjs(session?.user?.DateOfBirth).format('YYYY-MM-DD') || undefined;
+        values.VMS_Email = selectedForm?.EmailAddress || '';
+        values.VMS_Phone = selectedForm?.PhoneNumber || '';
       }
       setInitialValues(values);
     }

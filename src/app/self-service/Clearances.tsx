@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 
 import NextLink from 'next/link'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation';
 
 import { 
   Box, 
@@ -64,9 +65,12 @@ const populateCards = (forms: Form[]) => {
 }
 
 export const PlaceholderClearance = () => {
+	const router = useRouter();
+
   return (
 		<Card 
 			key={`selfservice-clearance-placeholder`} 
+			variant="outlined"
 			sx={{
 				minWidth: {
 					xs: '356px',
@@ -78,9 +82,19 @@ export const PlaceholderClearance = () => {
 					sm: '0 0 auto'  // Natural width on larger screens
 				},
 				mt:5,
-				mb:5
+				mb:5,
+				cursor: 'pointer',
+				transition: 'all 0.2s ease-in-out',
+				'&:hover': {
+						transform: 'translateY(-4px)',
+						boxShadow: 4,
+						// borderColor: 'primary.main',
+				},
 				// border: '1px dashed',
 				// borderColor: 'grey.400'
+			}}
+			onClick={() => {
+				router.push('/clearance/new');
 			}}
 		>
 			<CardHeader 
@@ -93,7 +107,7 @@ export const PlaceholderClearance = () => {
 			/>
 			<Divider sx={{color: 'darkGrey'}}/>
 			<CardContent sx={{display: 'flex', flexDirection:'column', minHeight: '128px', justifyContent: 'center', alignContent: 'center'}} >
-				<Grid container columns={5} spacing={1} sx={{ mb:1}}>
+				<Grid container columns={5} spacing={1} sx={{ mb:1 }}>
 						<Grid size={5} sx={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: '100%', flexGrow: 1}}>
 								<Add sx={{ fontSize: '28px', color: 'grey', mr: 0.5, height: '100%' }}/>
 								<Typography 
@@ -229,14 +243,17 @@ const ShowClearances = () => {
 						(session.user?.Forms).map((form: Form) => {
 							const cardColour = getCardColor(form.FormStatus.id);
 							return (
-								<Card key={`selfservice-clearance-${form._id}`} sx={{
-									minWidth: '300px', 
-									maxWidth: '450px',
-									flex: {
-										xs: '1 1 100%', // Full width on small screens
-										sm: '0 1 auto'  // Natural width on larger screens
-									}
-								}}>
+								<Card 
+									key={`selfservice-clearance-${form._id}`} 
+									sx={{
+										minWidth: '300px', 
+										maxWidth: '450px',
+										flex: {
+											xs: '1 1 100%', // Full width on small screens
+											sm: '0 1 auto'  // Natural width on larger screens
+										}
+									}}
+								>
 									<CardHeader 
 										title={
 											<Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>

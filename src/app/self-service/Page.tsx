@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react'
 
 import {
@@ -13,8 +14,9 @@ interface Props {}
 
 export default function SelfService({}: Props) {
   const { data: session, status } = useSession();
+  const router = useRouter();
 
-  if (session?.user) {
+  if (session?.user?.Forms) {
     return (
       <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', mt:5}}>
         <PersonalDetails />
@@ -22,6 +24,9 @@ export default function SelfService({}: Props) {
         <PlaceholderClearance />
       </Box>
     );
+  } else if (session?.user && !session.user.Forms) {
+    router.push('/clearance/new');
+    router.refresh();
   }
 
 }

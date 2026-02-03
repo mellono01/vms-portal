@@ -15,21 +15,11 @@ import {
   Typography,
 } from '@mui/material';
 
-// Store
-import {
-  useStore,
-} from '@/lib/providers/storeProvider'
-
 interface Props {}
 
 export default function SignUp({}: Props) {
   const { data: session, status } = useSession();
   const router = useRouter();
-
-  const {
-    signUpDetails,
-    setSignUpDetails,
-  } = useStore((store) => store);
 
   // Page State
   const [loading, setLoading] = useState(false);
@@ -38,9 +28,6 @@ export default function SignUp({}: Props) {
   const [FirstName, setFirstName] = useState('Oliver');
   const [LastName, setLastName] = useState('Mellon');
   const [Email, setEmail] = useState('test@test.com');
-  // const [FirstName, setFirstName] = useState('');
-  // const [LastName, setLastName] = useState('');
-  // const [Email, setEmail] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,7 +47,7 @@ export default function SignUp({}: Props) {
         setError('User already exists or invalid details')
       } else if (result?.ok) {
         // User session created successfully
-        router.push('/clearance/new')
+        router.push('/clearance/new?existing=false');
         router.refresh()
       }
     } catch (err) {
