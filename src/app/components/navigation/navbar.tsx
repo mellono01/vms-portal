@@ -19,6 +19,7 @@ import {
 } from '@mui/icons-material';
 
 // Authentication removed: no useSession, signIn, or signOut
+import { signOut } from 'next-auth/react'
 
 import Image from 'next/image'
 import logo from '/public/images/cedowLogo.png'
@@ -89,6 +90,11 @@ export default function Navbar({
                                         <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                                             <MenuItem key={"colourScheme"} sx={{m:1}}>
                                                 <ColourThemeSwitch />
+                                            </MenuItem>
+                                            <MenuItem key={"signout"} sx={{m:1}}>
+                                                <Button onClick={() => {signOut()}}>
+                                                    Sign Out
+                                                </Button>
                                             </MenuItem>
                                         </Box>
                                     </Menu>

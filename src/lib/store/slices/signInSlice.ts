@@ -18,7 +18,10 @@ export interface SignInActions {
 export type SignInSlice = SignInState & SignInActions;
 
 export const initialSignInState: SignInState = {
-  signInDetails: null,
+  signInDetails: {
+    CedowToken: 'DOW7410DE',
+    LastName: 'ABBASI',
+  },
 };
 
 export const createSignInSlice: StateCreator<Store, [], [], SignInSlice> = set => ({

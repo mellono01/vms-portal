@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSession } from 'next-auth/react'
 import dayjs from 'dayjs';
 
 import { 
@@ -6,7 +7,7 @@ import {
   Typography, 
   Box,
   TextField, 
-  Grid, 
+  Grid2 as Grid, 
   CircularProgress 
 } from '@mui/material';
 
@@ -15,9 +16,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 // Components
 import { Modal } from '@/app/components/Modal';
-
-// API
-// import { putForm } from '@/api/putForm';
 
 // DTO
 import type { Form } from '@/lib/dto/Form.dto';
@@ -30,27 +28,22 @@ const phoneRegex = /^[0-9]*$/;
 interface EditModalProps {
   open: boolean;
   onClose: () => void;
-  rowData: Form | null;
-  setLoadingUserData: (loading: boolean) => void;
-  getUser: () => Promise<any[]>;
 }
 
 export const EditModal: React.FC<EditModalProps> = ({ 
   open, 
-  onClose, 
-  rowData,
-  setLoadingUserData,
-  getUser,
+  onClose,
 }) => {
+  const { data: session, status } = useSession();
   const [originalData, setOriginalData] = React.useState<Form | null>(null);
   const [formData, setFormData] = React.useState<Form | null>(null);
 
 	const [updatingData, setUpdatingData] = React.useState(false);
 
 	const wwccRequired = ( 
-    formData?.FormType.id !== process.env.VITE_FORM_TYPES_VOLUNEEREXEMPT && 
-    formData?.FormType.id !== process.env.VITE_FORM_TYPES_CONTRACTOREXEMPT &&
-    formData?.FormStatus.id !== process.env.VITE_FORM_STATUS_UNDER18
+    formData?.FormType?.id !== process.env.VITE_FORM_TYPES_VOLUNTEEREXEMPT &&
+    formData?.FormType?.id !== process.env.VITE_FORM_TYPES_CONTRACTOREXEMPT &&
+    formData?.FormStatus?.id !== process.env.VITE_FORM_STATUS_UNDER18
   ) ? true : false;
 
   const validateDetails = () => {
@@ -74,12 +67,13 @@ export const EditModal: React.FC<EditModalProps> = ({
 
   // Initialize form data when modal opens or rowData changes
   React.useEffect(() => {
-    if (rowData) {
-      const deepCopiedData = JSON.parse(JSON.stringify(rowData));
+    if (session?.user) {
+      const deepCopiedData = JSON.parse(JSON.stringify(session.user));
       setOriginalData(deepCopiedData);
       setFormData(deepCopiedData);
     }
-  }, [rowData]);
+  }, [session?.user, open]);
+  console.log('Form Data in Edit Modal: ', formData);
 
   const handleCancel = () => {
     // Reset formData to the original deep-copied data
@@ -109,24 +103,6 @@ export const EditModal: React.FC<EditModalProps> = ({
 					Name: "Renewing"
 				}
 			}
-
-      // setUpdatingData(true);
-      // putForm({authToken: undefined, formId: formData._id, data: updatedForm})
-      // .then((res) => {
-      //   console.log('Successfully updated form: ', res);
-      //   setUpdatingData(false);
-      //   setLoadingUserData(true);
-      //   getUser()
-      //   .then((res) => {
-      //     console.log('Refreshed user data: ', res);
-      //     setLoadingUserData(false);
-      //     onClose();
-      //   })
-      // })
-      // .catch((err) => {
-      //   console.error('Error updating form: ', err);
-      //   setUpdatingData(false);
-      // });
     }
   };
 
@@ -164,9 +140,6 @@ export const EditModal: React.FC<EditModalProps> = ({
       maxWidth={false}
       showCloseButton={false} // Hide the X button in the title bar
     >
-      {/* <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center' }}>
-        blah blah subheading
-      </Typography> */}
       <Box sx={{width:'100%', display:'flex', justifyContent:'center', mt:3}}>
         <Grid container columns={4} spacing={2}>
           {

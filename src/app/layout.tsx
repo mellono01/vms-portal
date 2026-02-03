@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/auth";
+import SessionWrapper from "@/lib/SessionWrapper";
+
 import { StoreProvider } from "@/lib/providers/storeProvider";
 
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
@@ -26,24 +30,27 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions)
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
       <body className={inter.className}>
         <InitColorSchemeScript attribute="class" />
-        <Providers>
-          <AppRouterCacheProvider>
-            <ThemeProvider theme={theme}>
-            <CssBaseline enableColorScheme/>
-                <Navigation/>
-                <main>
-                  <StoreProvider>
-                    {children}
-                  </StoreProvider>
-                </main>
-            </ThemeProvider>
-          </AppRouterCacheProvider>
-        </Providers>
+          <Providers>
+            <AppRouterCacheProvider>
+              <ThemeProvider theme={theme}>
+                <CssBaseline enableColorScheme />
+                <SessionWrapper session={session}>
+                  <Navigation/>
+                  <main>
+                    <StoreProvider>
+                      {children}
+                    </StoreProvider>
+                  </main>
+                </SessionWrapper>
+              </ThemeProvider>
+            </AppRouterCacheProvider>
+          </Providers>
       </body>
     </html>
   )

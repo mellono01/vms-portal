@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import NextLink from 'next/link'
 
+import { signIn } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
+
 import {
   Box,
   Button,
@@ -17,12 +20,10 @@ import {
   useStore,
 } from '@/lib/providers/storeProvider'
 
-// API
-import postEntityExists from '@/lib/api/requests/postEntityExists';
-
 interface Props {}
 
 export default function SignUp({}: Props) {
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   const {
@@ -37,37 +38,41 @@ export default function SignUp({}: Props) {
   const [FirstName, setFirstName] = useState('Oliver');
   const [LastName, setLastName] = useState('Mellon');
   const [Email, setEmail] = useState('test@test.com');
+  // const [FirstName, setFirstName] = useState('');
+  // const [LastName, setLastName] = useState('');
+  // const [Email, setEmail] = useState('');
 
-  const handleCheck = async () => {
-    setLoading(true);
-    setError(null);
-    
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
     try {
-      const result = await postEntityExists({
+      // Use the 'sign-up' provider
+      const result = await signIn('sign-up', {
+        Email,
         FirstName,
         LastName,
-        Email,
-      });
-      
-      if(result && result.exists === false) {
-        console.log('Result from postEntityExists:', result);
-        setSignUpDetails({
-          FirstName,
-          LastName,
-          Email,
-        })
-        router.push('/clearance/new');
-      } else if (result) {
-        if (result.exists) {
-          throw new Error('We have found an existing record with the details provided. Please sign in instead.');
-        }
+        redirect: false,
+      })
+
+      if (result?.error) {
+        setError('User already exists or invalid details')
+      } else if (result?.ok) {
+        // User session created successfully
+        router.push('/clearance/new')
+        router.refresh()
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      console.error('Sign up error:', err)
+      setError('An error occurred')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
+  console.log('session:', session);
+
   return (
     <>
       <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '80%'}}>
@@ -117,7 +122,7 @@ export default function SignUp({}: Props) {
           variant='contained' 
           sx={{mt: 2}}
           disabled={loading}
-          onClick={handleCheck}
+          onClick={handleSubmit}
         >
           Go
         </Button>

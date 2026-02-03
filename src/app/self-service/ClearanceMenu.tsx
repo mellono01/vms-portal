@@ -19,11 +19,13 @@ export default function ClearanceMenu({
   anchor,
   isOpen,
   setOpen,
+  setEditDetailsOpen,
   showUpgrade
 }: {
   anchor: null | HTMLElement;
   isOpen: boolean;
   setOpen: (open: boolean) => void;
+  setEditDetailsOpen: (open: boolean) => void;
   showUpgrade: boolean;
 }) {
   return (
@@ -55,7 +57,12 @@ export default function ClearanceMenu({
               </NextLink>
             )
           }
-          <MenuItem>
+          <MenuItem
+            onClick={() => {
+              setEditDetailsOpen(true);
+              setOpen(false);
+            }}
+          >
             <ListItemIcon>
               <Edit fontSize="small" />
             </ListItemIcon>

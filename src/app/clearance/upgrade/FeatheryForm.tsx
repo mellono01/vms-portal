@@ -1,8 +1,13 @@
 'use client';
 
-import { useRef } from 'react';
+import { 
+  useEffect, 
+  useRef, 
+  useState 
+} from 'react';
 
 import NextLink from 'next/link'
+import { useSession } from 'next-auth/react'
 
 import { 
   Box,
@@ -19,10 +24,19 @@ export default function FeatheryForm({
 }: {
   from: 'upgrade' | 'new' | 'new-existing'
 }) {
+  const { data: session, status } = useSession();
+  console.log('[FeatheryForm] User Session:', session); 
+
+  const [initialValues, setInitialValues] = useState({
+    VMS_FirstName: '', 
+    VMS_MiddleName: '', 
+    VMS_LastName: '', 
+    VMS_DOB: '', 
+    VMS_Email: '', 
+    VMS_Phone: ''
+  });
+
   const {
-    signInDetails,
-    signUpDetails,
-    userData,
     selectedForm,
   } = useStore((store) => store);
 
@@ -40,51 +54,53 @@ export default function FeatheryForm({
   const context = useRef<FormContext>(null);
   // console.log('[Feathery Context]', context.current?.formName);
 
-  const initialValues = {
-    VMS_FirstName: '', 
-    VMS_MiddleName: '', 
-    VMS_LastName: '', 
-    VMS_DOB: '', 
-    VMS_Email: '', 
-    VMS_Phone: ''
-  }
-
-  if (from === 'new') {
-    initialValues.VMS_FirstName = signUpDetails?.FirstName || '';
-    initialValues.VMS_LastName = signUpDetails?.LastName || '';
-    initialValues.VMS_Email = signUpDetails?.Email || '';
-  }
-
-  if (from === 'new-existing' || from === 'upgrade') {
-    initialValues.VMS_FirstName = userData?.FirstName || '';
-    initialValues.VMS_MiddleName = userData?.MiddleName || '';
-    initialValues.VMS_LastName = userData?.LastName || '';
-    initialValues.VMS_DOB = userData?.DateOfBirth || '';
-
-    if (from === 'upgrade') {
-      initialValues.VMS_Email = userData?.EmailAddress || '';
-      initialValues.VMS_Phone = userData?.PhoneNumber || '';
-    }
-  }
-
   // Show the Feathery form
-  return (
-    <Box
-      sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}
-    >
-      <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'start', width: '100%', ml:3}}>
-        <Breadcrumbs aria-label="breadcrumb">
-          <NextLink color="inherit" href="/self-service">
-            Self Service
-          </NextLink>
-          <Typography sx={{ color: 'text.primary' }}>Upgrade Clearance</Typography>
-        </Breadcrumbs>
+
+  useEffect(() => {
+    console.log('from:', from);
+    if (session?.user) {
+      let values = initialValues;
+      if (from === 'new') {
+        values.VMS_FirstName = session?.user?.FirstName || '';
+        values.VMS_LastName = session?.user?.LastName || '';
+        values.VMS_Email = session?.user?.Email || '';
+      }
+
+      if (from === 'new-existing' || from === 'upgrade') {
+        values.VMS_FirstName = session?.user?.FirstName || '';
+        values.VMS_MiddleName = session?.user?.MiddleName || '';
+        values.VMS_LastName = session?.user?.LastName || '';
+        values.VMS_DOB = session?.user?.DateOfBirth || '';
+
+        if (from === 'upgrade') {
+          values.VMS_Email = selectedForm?.EmailAddress || '';
+          values.VMS_Phone = selectedForm?.PhoneNumber || '';
+        }
+      }
+      setInitialValues(values);
+    }
+  }, [session, selectedForm, from]);
+
+  if (session?.user) {
+    console.log('Initial Values:', initialValues);
+    return (
+      <Box
+        sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}
+      >
+        <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'start', width: '100%', ml:3}}>
+          <Breadcrumbs aria-label="breadcrumb">
+            <NextLink color="inherit" href="/self-service">
+            {'<'} Back to Sign In/Sign Up
+            </NextLink>
+            {/* <Typography sx={{ color: 'text.primary' }}>Upgrade Clearance</Typography> */}
+          </Breadcrumbs>
+        </Box>
+        <Form 
+          formId='avGDYr' 
+          contextRef={context}
+          initialValues={initialValues}
+        />
       </Box>
-      <Form 
-        formId='avGDYr' 
-        contextRef={context}
-        initialValues={initialValues}
-      />
-    </Box>
-  );
+    );
+  }
 }
