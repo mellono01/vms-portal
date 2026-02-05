@@ -157,8 +157,15 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       // Store user data in the token when they first sign in
       if (user) {
-        // Add any properties from API response
-        token = { ...user };
+        // Add any properties from API response and ensure required JWT fields exist
+        token = {
+          ...token,
+          ...user,
+          cedowToken: (user as any).cedowToken ?? (user as any).CedowToken ?? '',
+          lastName: (user as any).lastName ?? (user as any).LastName ?? '',
+          emails: (user as any).emails ?? [],
+          mfaVerified: (user as any).mfaVerified ?? false,
+        };
       }
       
       return token;

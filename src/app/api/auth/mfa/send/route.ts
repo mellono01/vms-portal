@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-    const unmaskedEmail = token?.emails?.find((e: any) => e.id === body?.EmailId)?.unmasked;
+    const unmaskedEmail = token?.emails?.find((e: any) => e.id === body?.EmailId)?.unmasked ?? '';
     
     const mfaCode = await generateMfaCode();
     
