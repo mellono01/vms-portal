@@ -1,33 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-
-import { useSession } from 'next-auth/react'
+import { useState } from 'react';
 
 import {
   Box,
   Button,
   TextField,
   Typography,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormControl,
 } from '@mui/material';
 
-export function MfaCodeInput({
+export default function MfaCodeInput({
+  loading,
+  error,
   maskedEmail,
   handleVerifyMfa
 }: {
+  loading: boolean;
+  error: string | null;
   maskedEmail: string;
-  handleVerifyMfa: ({ mfaCode }: { mfaCode: string }) => {ok: boolean};
+  handleVerifyMfa: ({ mfaCode }: { mfaCode: string }) => void;
 }) {
-  // Page State
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // const mfaCodeValid = generateMFACode(); // Placeholder for demo purposes
   const [mfaCode, setMfaCode] = useState(['', '', '', '', '', '']);
 
   const handleCodeChange = (index: number, value: string) => {
@@ -115,95 +107,12 @@ export function MfaCodeInput({
         sx={{mt: 5}}
         disabled={loading || mfaCode.join('').length !== 6}
         onClick={() => {
-          console.log('Submitting code:', mfaCode.join(''));
           const fullCode = mfaCode.join('');
-          // Your verify logic here using fullCode
-          const result = handleVerifyMfa({ mfaCode: fullCode });
-          if (result?.ok) {
-            setError(null);
-          } else {
-            setError('The verification code entered is incorrect. Please try again.');
-          }
+          handleVerifyMfa({ mfaCode: fullCode });
         }}
       >
         Verify
       </Button>
     </>
   )
-}
-
-export function EmailSelect({
-  selectedEmail,
-  setSelectedEmail,
-  handleSendCode
-}: {
-  selectedEmail: number | null;
-  setSelectedEmail: (email: number) => void;
-  handleSendCode: () => void;
-}) {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  
-  // Page State
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // User is signed in, redirect to home
-  useEffect(() => {
-    if(session?.user) {
-      // router.push('/');
-      // router.refresh();
-    }
-  }, [session, router]);
-  
-  console.log('SignIn session user:', session?.user);
-
-  if (session?.user) {
-    return (
-      <>
-        <Typography variant='body1' sx={{mb:2}}>
-          To sign in we will send you a verification code which you will need to enter in.
-        </Typography>
-        <Typography variant='body1' sx={{mb:4}}>
-          Please select where you would like to receive your verification code.
-        </Typography>
-        { 
-          error && (
-            <Typography variant='body1' sx={{mb:4, color: 'red'}}>
-              {error}
-            </Typography>
-          )
-        }
-        <Box>
-          <FormControl>
-            <RadioGroup
-              key={'mfa-email-select'}
-              value={selectedEmail}
-              onChange={(e) => setSelectedEmail(Number(e.target.value))}
-            >
-              {session.user.emails.map((email) => (
-                <FormControlLabel
-                  key={email.id}
-                  value={email.id}
-                  control={<Radio />}
-                  label={email.masked}
-                />
-              ))}
-            </RadioGroup>
-          </FormControl>
-        </Box>
-       
-        <Button 
-          variant='contained' 
-          sx={{mt: 5}}
-          disabled={loading || selectedEmail === null}
-          onClick={() => {
-            handleSendCode();
-          }}
-        >
-          Send Code
-        </Button>
-      </>
-    );
-  }
 }

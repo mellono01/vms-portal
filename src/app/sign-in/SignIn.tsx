@@ -19,10 +19,8 @@ import {
 } from '@/lib/providers/storeProvider'
 
 // Components
-import { 
-  MfaCodeInput, 
-  EmailSelect 
-} from './Mfa';
+import EmailSelect from './EmailSelect';
+import MfaCodeInput from './MfaCodeInput';
 
 interface Props {}
 
@@ -36,11 +34,10 @@ export default function SignIn({}: Props) {
   } = useStore((store) => store);
   
   // Page State
-  const mfaCodeValid = 123456; // Placeholder for demo purposes
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const [selectedEmail, setSelectedEmail] = useState<number | null>(null);
+  const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
 
   const [mfaStep, setMfaStep] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
@@ -142,33 +139,18 @@ export default function SignIn({}: Props) {
       });
 
       if (result?.ok) {
+        console.log('MFA verification successful, signing in user');
+        setError(null);
         setLoading(false);
-        return {ok: true};
+      } else {
+        setError('Invalid code, please try again.');
       }
-
-      return new Error('Unexpected sign-in result');
     } catch (err) {
       console.error('Sign in error:', err);
-      return {ok: false};
     } finally {
       setLoading(false);
     }
-    
   }
-
-  // const handleBack = () => {
-  //   if (mfaStep) {
-  //     // Go back to email selection or credentials
-  //     setMfaStep(false);
-  //     setMfaCode('');
-  //   } else if (emailSelectionStep) {
-  //     // Go back to credentials
-  //     setEmailSelectionStep(false);
-  //     setSelectedEmail(null);
-  //     setAvailableEmails([]);
-  //   }
-  //   setError(null);
-  // }
 
   if (!session) {
     return (
@@ -236,6 +218,7 @@ export default function SignIn({}: Props) {
   ) {
     return (
       <EmailSelect 
+        loading={loading}
         selectedEmail={selectedEmail || ''}
         setSelectedEmail={setSelectedEmail}
         handleSendCode={handleSendMfaEmail}
@@ -250,6 +233,8 @@ export default function SignIn({}: Props) {
     const email = session.user.emails?.find(e => e.id === selectedEmail);
     return (
       <MfaCodeInput 
+        loading={loading}
+        error={error}
         maskedEmail={email?.masked || ''}
         handleVerifyMfa={handleVerifyMfa}
       />
@@ -258,7 +243,6 @@ export default function SignIn({}: Props) {
 
   return (
     <>
-      bork bork
     </>
   );
 }

@@ -10,11 +10,11 @@ async function generateMfaCode(): Promise<string> {
   return code;
 }
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-    const unmaskedEmail = token?.emails?.find((e: any) => e.id === Number(body?.EmailId))?.unmasked;
+    const unmaskedEmail = token?.emails?.find((e: any) => e.id === body?.EmailId)?.unmasked;
     
     const mfaCode = await generateMfaCode();
     
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
       if(postedMfa) {
         console.log('MFA code stored successfully for email:', unmaskedEmail);
-        
+
         // TODO: send code to email using unmaskedEmail
         console.log('Sending MFA code to email:', unmaskedEmail);
       }
