@@ -30,7 +30,7 @@ export default async function getEntityForms({
     });
     
     if(response.status === 200) {
-      console.log('Response from getEntityForms:', response);
+      // console.log('Response from getEntityForms:', response);
       return response.data;
     } else {
       throw new Error(`${logPrefix} VMS API responded with status ${response.status}`);

@@ -58,8 +58,6 @@ export function ClearanceCard({
   handleOpenActionsMenu?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   handleCloseActionsMenu?: () => void;
 }) {
-console.log('[ClearanceCard] Clearance Data:', clearance);
-
   const getCardColor = useStatusColour();
   const cardColour = getCardColor(clearance.FormStatus?.id);
 
