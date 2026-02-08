@@ -26,7 +26,7 @@ export default function FeatheryForm({
   from: 'upgrade' | 'new' | 'new-existing'
 }) {
   const { data: session, status } = useSession();
-  console.log('[FeatheryForm] User Session:', session); 
+  // console.log('[FeatheryForm] User Session:', session); 
 
   const [initialValues, setInitialValues] = useState({
     VMS_FirstName: '', 
@@ -53,12 +53,12 @@ export default function FeatheryForm({
   });
 
   const context = useRef<FormContext>(null);
-  // console.log('[Feathery Context]', context.current?.formName);
+  console.log('[Feathery Context]', context.current);
 
   // Show the Feathery form
 
   useEffect(() => {
-    console.log('from:', from);
+    // console.log('from:', from);
     if (session?.user) {
       let values = initialValues;
       if (from === 'new') {
@@ -82,7 +82,7 @@ export default function FeatheryForm({
   }, [session, selectedForm, from]);
 
   if (session?.user) {
-    console.log('Initial Values:', initialValues);
+    // console.log('Initial Values:', initialValues);
     return (
       <Box
         sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}
