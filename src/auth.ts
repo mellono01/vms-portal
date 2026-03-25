@@ -42,6 +42,7 @@ export const authOptions: AuthOptions = {
               id: _id
             }));
             return {
+              method: 'sign-in',
               id: credentials?.CedowToken || '', // Use CedowToken as a unique id
               cedowToken: credentials?.CedowToken || '',
               lastName: credentials?.LastName || '',
@@ -93,6 +94,7 @@ export const authOptions: AuthOptions = {
                .catch((err) => console.error('Error deleting MFA code:', err));
               
               return {
+                method: 'mfa-sign-in',
                 ...result[0],
                 mfaVerified: true, // Mark as MFA verified
               };
@@ -135,6 +137,7 @@ export const authOptions: AuthOptions = {
 
           // Return the user data to create a session
           const newUser = {
+            method: 'sign-up',
             id: `temp-${Date.now()}`, // Temporary ID or generate one
             Email: credentials?.Email || '',
             FirstName: credentials?.FirstName || '',
@@ -161,6 +164,7 @@ export const authOptions: AuthOptions = {
         token = {
           ...token,
           ...user,
+          method: (user as any).method ?? 'unknown',
           cedowToken: (user as any).cedowToken ?? (user as any).CedowToken ?? '',
           lastName: (user as any).lastName ?? (user as any).LastName ?? '',
           emails: (user as any).emails ?? [],
@@ -178,13 +182,19 @@ export const authOptions: AuthOptions = {
           session.user = { ...token } as any;
         } else {
           session.user.mfaVerified = false;
-          session.user.emails = (token.emails as any)?.map((email: any) => ({
-            masked: email.masked,
-            id: email.id,
-          }));
-          // Store token data for server-side access (not sent to client)
           session.user.cedowToken = token.CedowToken as string;
+          session.user.firstName = token.FirstName as string;
           session.user.lastName = token.LastName as string;
+          
+          if(token.method === 'sign-up') {
+            session.user.email = token.Email as string;
+          } else if (token.method === 'sign-in') {
+            // Store token data for server-side access (not sent to client)
+            session.user.emails = (token.emails as any)?.map((email: any) => ({
+              masked: email.masked,
+              id: email.id,
+            }));
+          }
         }
       }
       return session;

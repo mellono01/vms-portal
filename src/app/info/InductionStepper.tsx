@@ -85,6 +85,16 @@ export default function InductionStepper() {
             </Typography>
           </StepContent>
         </Step>
+        <Step key={4} expanded={true}>
+          <StepLabel>
+            Manage Your Clearances
+          </StepLabel>
+          <StepContent>
+            <Typography>
+              Using <NextLink href="/">this portal</NextLink> you can view, update and renew your existing clearances or add new clearances as required.
+            </Typography>
+          </StepContent>
+        </Step>
       </Stepper>
     </Box>
   );

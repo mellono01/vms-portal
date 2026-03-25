@@ -49,9 +49,31 @@ export default function SignIn({}: Props) {
       router.refresh();
     }
   }, [session, router]);
+
+   // User only has 1 email address, auto select
+  //  useEffect(() => {
+  //   if (
+  //     session?.user && 
+  //     session.user.mfaVerified === false && 
+  //     session.user.emails?.length === 1 &&
+  //     selectedEmail === null
+  //   ) {
+  //     console.log('Only one email available, proceeding with MFA email send');
+  //     setSelectedEmail(session.user.emails[0].id);
+  //   }
+
+  //   if(
+  //     session?.user && 
+  //     session.user.mfaVerified === false && 
+  //     session.user.emails?.length === 1 &&
+  //     selectedEmail !== null
+  //   ) {
+  //     handleSendMfaEmail();
+  //   }
+  // }, [session, selectedEmail]);
   
   console.log('SignIn session user:', session?.user);
-  // console.log('selectedEmail:', selectedEmail);
+  console.log('selectedEmail:', selectedEmail);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -69,6 +91,7 @@ export default function SignIn({}: Props) {
         setError('Invalid credentials');
         setLoading(false);
       } else if (result?.ok) {
+        console.log('result from signIn:', result); 
         setLoading(false);
         return;
       }
@@ -84,6 +107,7 @@ export default function SignIn({}: Props) {
 
   const handleSendMfaEmail = async () => {
     if (selectedEmail === null) {
+      console.warn('No email selected for MFA code send');
       setError('Please select an email address');
       return;
     }
@@ -94,6 +118,7 @@ export default function SignIn({}: Props) {
     try {
       const email = session?.user?.emails?.find(e => e.id === selectedEmail);
       if (!email) {
+        console.log('Selected email not found in user emails');
         setError('Invalid email selection');
         setLoading(false);
         return;
@@ -110,6 +135,7 @@ export default function SignIn({}: Props) {
       });
 
       if (!response.ok) {
+        console.log('Failed to send MFA code, response not ok:', response);
         throw new Error('Failed to send MFA code');
       }
 
@@ -213,23 +239,33 @@ export default function SignIn({}: Props) {
   if (
     session.user && 
     session.user.mfaVerified === false && 
-    session.user.emails?.length > 1 && 
     mfaStep === false
   ) {
+    // if(session.user.emails?.length > 1) {
+    //   return (
+    //     <EmailSelect 
+    //       loading={loading}
+    //       selectedEmail={selectedEmail || ''}
+    //       setSelectedEmail={setSelectedEmail}
+    //       handleSendCode={handleSendMfaEmail}
+    //     />
+    //   );
+    // }
     return (
-      <EmailSelect 
-        loading={loading}
-        selectedEmail={selectedEmail || ''}
-        setSelectedEmail={setSelectedEmail}
-        handleSendCode={handleSendMfaEmail}
-      />
-    );
+        <EmailSelect 
+          loading={loading}
+          selectedEmail={selectedEmail || ''}
+          setSelectedEmail={setSelectedEmail}
+          handleSendCode={handleSendMfaEmail}
+        />
+      );
   }
 
   if (
     session.user && 
     session.user.mfaVerified === false && 
-    mfaStep === true) {
+    mfaStep === true
+  ) {
     const email = session.user.emails?.find(e => e.id === selectedEmail);
     return (
       <MfaCodeInput 

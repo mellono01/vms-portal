@@ -19,8 +19,8 @@ export type SignInSlice = SignInState & SignInActions;
 
 export const initialSignInState: SignInState = {
   signInDetails: {
-    CedowToken: 'DOW7410DE',
-    LastName: 'ABBASI',
+    CedowToken: 'DOW2AA5A2',
+    LastName: 'Test',
   },
 };
 

@@ -1,5 +1,3 @@
-import NextLink from "next/link";
-
 import { Box, Typography, styled } from "@mui/material";
 
 import InductionStepper from "./InductionStepper";
@@ -22,9 +20,6 @@ export default function Info() {
         As part of this commitment all visitors must complete a short online induction <strong>once</strong> and sign in using their issued CEDoW Token when arriving on site.
         </BodyText>
         <InductionStepper />
-        <BodyText sx={{mt:2, mb:2}}>
-          You can <NextLink href="/sign-in">sign in</NextLink> to this portal using your CEDoW Token to view your details and manage your clearances.
-        </BodyText>
         <BodyText sx={{mb:2}}>
           For more information on how we handle your personal information please see our privacy policy.
         </BodyText>

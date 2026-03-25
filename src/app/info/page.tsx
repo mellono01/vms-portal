@@ -31,19 +31,7 @@ export default function InfoPage({}: Props) {
   console.log('Referrer:', document.referrer);
   return (
     <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-      <Box sx={{width: '98%', mt:2, mb:2}}>
-        <Button 
-          variant='contained'
-          onClick={() => router.back()}
-        >
-          back
-        </Button>
-        <Breadcrumbs aria-label="breadcrumb">
-        <NextLink href="/sign-in">Sign In</NextLink>
-        <NextLink href="/sign-up">Sign Up</NextLink>
-      </Breadcrumbs>
-      </Box>
-      <Typography variant="h4" sx={{mb:4}}>
+      <Typography variant="h4" sx={{mt:2, mb:4}}>
         {pageTitle}
       </Typography>
       <Info />

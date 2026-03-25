@@ -22,7 +22,8 @@ import {
 import { signOut } from 'next-auth/react'
 
 import Image from 'next/image'
-import logo from '/public/images/cedowLogo.png'
+// import logo from '/public/images/cedowLogo.png'
+import logo from '../../../../public/images/cedowLogo.png'
 
 // Local Imports
 import { MenuBar, MenuLogo, MenuTitle } from '@components/mui-styled/MenuBar'

@@ -1,5 +1,7 @@
 'use client';
 
+import dayjs from 'dayjs';
+
 import { 
   useEffect, 
   useRef, 
@@ -17,35 +19,36 @@ import {
 
 import { init, Form, FormContext } from '@feathery/react';
 
+// Store
 import { useStore } from '@/lib/providers/storeProvider';
-import dayjs from 'dayjs';
 
 export default function FeatheryForm({
-  from
+  from,
+  prefilledValues,
 }: {
-  from: 'upgrade' | 'new' | 'new-existing'
+  from: 'upgrade' | 'new' | 'new-existing',
+  prefilledValues: {
+    Select4?: string; // Volunteer, Contractor, Staff
+    VMS_FirstName: string;
+    VMS_MiddleName: string;
+    VMS_LastName: string;
+    VMS_DOB: string | undefined;
+    VMS_Email: string;
+    VMS_Phone: string;
+  }
 }) {
   const { data: session, status } = useSession();
-  // console.log('[FeatheryForm] User Session:', session); 
-
-  const [initialValues, setInitialValues] = useState({
-    VMS_FirstName: '', 
-    VMS_MiddleName: '', 
-    VMS_LastName: '', 
-    VMS_DOB: undefined, 
-    VMS_Email: '', 
-    VMS_Phone: ''
-  });
+  // console.log('[FeatheryForm] User Session:', session);
+  const existingForms =
+    ((session?.user as { Claims?: Array<{ Name: string; id: string }> } | undefined)?.Claims ?? []);
+  console.warn('Existing Forms:', existingForms); 
 
   const {
     selectedForm,
+    userData
   } = useStore((store) => store);
 
   const featherySdk = 'bb4b8927-47c8-4910-a6ba-ed492db9d98e' // SDK Key (Test)
-  // const featherySdk = '485460c5-27f2-4e7b-a88b-0d709d77bed2' // SDK Key (Live)
-  // const featherySdk = 'bb4b8927-47c8-4910-a6ba-ed492db9d98e' // SDK Key (Test)
-  // const featherySdk = 'b3f4ce09-d923-4130-9536-b444e4ee2e72' // API Key (Live)
-  // const featherySdk = 'db21e8c2-b9db-4afe-a945-088688a30b9c' // API Key (Test)
 
   // Initialize Feathery
   init(featherySdk, {
@@ -53,36 +56,47 @@ export default function FeatheryForm({
   });
 
   const context = useRef<FormContext>(null);
-  console.log('[Feathery Context]', context.current);
 
-  // Show the Feathery form
-
-  useEffect(() => {
-    // console.log('from:', from);
-    if (session?.user) {
-      let values = initialValues;
-      if (from === 'new') {
-        values.VMS_FirstName = session?.user?.FirstName || '';
-        values.VMS_MiddleName = session?.user?.MiddleName || '';
-        values.VMS_LastName = session?.user?.LastName || '';
-        values.VMS_DOB = dayjs(session?.user?.DateOfBirth).format('YYYY-MM-DD') || undefined;
-        values.VMS_Email = session?.user?.Email || '';
-      }
-
-      if (from === 'upgrade') {
-        values.VMS_FirstName = session?.user?.FirstName || '';
-        values.VMS_MiddleName = session?.user?.MiddleName || '';
-        values.VMS_LastName = session?.user?.LastName || '';
-        values.VMS_DOB = dayjs(session?.user?.DateOfBirth).format('YYYY-MM-DD') || undefined;
-        values.VMS_Email = selectedForm?.EmailAddress || '';
-        values.VMS_Phone = selectedForm?.PhoneNumber || '';
-      }
-      setInitialValues(values);
+  const removeExistingCapacityOptions = () => {
+    if (!context.current || existingForms.length === 0) {
+      return;
     }
-  }, [session, selectedForm, from]);
+
+    const capacityField = context.current.fields?.['VMS_Capacity'];
+    if (!capacityField?.options?.length) { // No options to filter, exit early
+      return;
+    }
+
+    const normalize = (value: string) => value.trim().toLowerCase();
+    const existingNames = new Set(
+      existingForms
+        .map((form) => form.Name)
+        .filter(Boolean)
+        .map(normalize)
+    );
+
+    const nextOptions = capacityField.options.filter((option) => {
+      const optionValue = typeof option === 'string' ? option : option.value;
+      return !existingNames.has(normalize(optionValue));
+    });
+
+    const removedCount = capacityField.options.length - nextOptions.length;
+    if (removedCount > 0) {
+      capacityField.options = nextOptions;
+
+      const selectedCapacity =
+        typeof capacityField.value === 'string' ? capacityField.value : '';
+      if (selectedCapacity && existingNames.has(normalize(selectedCapacity))) {
+        capacityField.clear?.();
+      }
+
+      console.log(`Removed ${removedCount} VMS_Capacity option(s) that already exist.`);
+    }
+  };
 
   if (session?.user) {
     // console.log('Initial Values:', initialValues);
+
     return (
       <Box
         sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}
@@ -98,7 +112,9 @@ export default function FeatheryForm({
         <Form 
           formId='avGDYr' 
           contextRef={context}
-          initialValues={initialValues}
+          // onFormLoad={removeExistingCapacityOptions}
+          initialValues={prefilledValues}
+          hideTestUI={true}
         />
       </Box>
     );
