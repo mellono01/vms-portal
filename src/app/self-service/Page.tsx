@@ -21,14 +21,17 @@ import getLocations from '@/lib/api/requests/getLocations';
 // Components
 import Clearances from './Clearances';
 import PersonalDetails from './PersonalDetails';
-import { PlaceholderClearance } from './components/ClearanceCard';
 import HelpMenu from './HelpMenu';
+import ErrorPage from '../error';
+import { dataTagErrorSymbol } from '@tanstack/react-query';
 
 interface Props {}
 
 export default function SelfService({}: Props) {
   const { data: session, status } = useSession();
   const router = useRouter();
+
+  console.warn('Session data in SelfService component:', session?.user);
 
   // Store Hooks
   const { 
@@ -73,9 +76,15 @@ export default function SelfService({}: Props) {
         LastName: session.user.LastName,
       })
       .then((data) => {
-        console.log('Fetched entity forms:', data[0]);
-        setUserData(data[0]);
-        setFetchingUserData(false);
+        if(!!dataTagErrorSymbol) {
+          // console.log('Fetched entity forms:', data);
+          setUserData(data[0]);
+          setFetchingUserData(false);
+        } else {
+          console.log("Response from getEntityForms is empty or undefined");
+          setFetchingUserData(false);
+          throw new Error('No data returned from getEntityForms');
+        }
       })
       .catch((error) => {
         console.error('Error fetching entity forms:', error);
@@ -84,16 +93,7 @@ export default function SelfService({}: Props) {
     }
   }, [session, status]);
 
-  if (userData && userData.Forms) {
-    return (
-      <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', mt:5}}>
-        <PersonalDetails />
-        <Clearances />
-        <PlaceholderClearance />
-        <HelpMenu />
-      </Box>
-    );
-  } else if (fetchingUserData || fetchingLocations) {
+  if (fetchingUserData || fetchingLocations) {
     return (
       <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', mt:5}}>
        <Backdrop
@@ -104,12 +104,20 @@ export default function SelfService({}: Props) {
       </Backdrop>
       </Box>
     );
+  } else if (userData && userData.Forms) {
+    return (
+      <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', mt:5}}>
+        <PersonalDetails />
+        <Clearances />
+        <HelpMenu />
+      </Box>
+    );
   } else if (session?.user && userData && !userData.Forms) {
     router.push('/clearance/new');
     router.refresh();
   } else {
-    <Box>
-      error - unknown
-    </Box>
+    return (
+      <ErrorPage />
+    )
   }
 }

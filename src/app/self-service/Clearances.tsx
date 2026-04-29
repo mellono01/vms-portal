@@ -13,12 +13,13 @@ import {
 } from '@/lib/providers/storeProvider'
 
 // Components
-import { ClearanceCard } from './components/ClearanceCard';
+import { ClearanceCard, PlaceholderClearance } from './components/ClearanceCard';
 import { EditModal } from './components/EditModal/EditModal';
 import DeleteModal from './DeleteModal';
 
 // DTO
 import type { Form } from '@/lib/dto/Form.dto';
+import dayjs from 'dayjs';
 
 const ShowClearances = () => {
 	// Store Hooks
@@ -30,6 +31,11 @@ const ShowClearances = () => {
 	// State
   const [editDetailsOpen, setEditDetailsOpen] = React.useState(false);
   const [openCloseModal, setOpenCloseModal] = React.useState(false);
+
+	const currentForms = userData?.Forms.map((form) => form.FormType.id) || [];
+	const isUnder18 = userData?.DateOfBirth
+		? dayjs().diff(dayjs(userData.DateOfBirth), 'year') < 18
+		: false;
 
 	if(userData && userData.Forms !== null) {
 		return (
@@ -48,7 +54,8 @@ const ShowClearances = () => {
 					justifyContent: 'center',
 					alignItems: 'flex-start',
 					gap: 2,
-					width: '95%'
+					width: '95%', 
+					mb:8
 				}}>
 					{
 						(userData.Forms).map((form: Form) => {
@@ -63,6 +70,28 @@ const ShowClearances = () => {
 								/>
 							)
 						})
+					}
+					{
+						!currentForms.some((type) => [
+							process.env.NEXT_PUBLIC_FORM_TYPES_VOLUNTEEREXEMPT, 
+							process.env.NEXT_PUBLIC_FORM_TYPES_VOLUNTEER
+						].includes(type)) && (
+							<PlaceholderClearance
+								type='volunteer'
+								under18={isUnder18}
+							/>
+						)
+					}
+					{
+						!currentForms.some((type) => [
+							process.env.NEXT_PUBLIC_FORM_TYPES_CONTRACTOREXEMPT, 
+							process.env.NEXT_PUBLIC_FORM_TYPES_CONTRACTOR
+						].includes(type)) && (
+							<PlaceholderClearance
+								type='contractor'
+								under18={isUnder18}
+							/>
+						)
 					}
 				</Box>
 				<EditModal 

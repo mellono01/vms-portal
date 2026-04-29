@@ -14,7 +14,6 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Button,
 } from '@mui/material';
 import { 
   ExpandMore,
@@ -33,12 +32,8 @@ interface Props {}
 
 export default function Faq({}: Props) {
   return (
-    <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '90%'}}>
-      <Typography variant="h5" sx={{mt:2, mb:4}}>
-        Frequently Asked Questions (FAQ)
-      </Typography>
-
-      <Box sx={{mb:3}}>
+    <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '80%'}}>
+      <Box sx={{mb:3, width: '100%'}}>
         <Typography variant="h6" sx={{mb:2}}>
           General
         </Typography>
@@ -58,7 +53,7 @@ export default function Faq({}: Props) {
         </Accordion>
       </Box>
 
-      <Box sx={{mb:3}}>
+      <Box sx={{mb:3, width: '100%'}}>
         <Typography variant="h6" sx={{mb:2}}>
           CEDoW Token
         </Typography>
@@ -144,7 +139,7 @@ export default function Faq({}: Props) {
         </Accordion>
       </Box>
       
-      <Box sx={{mb:3}}>
+      <Box sx={{mb:3, width: '100%'}}>
         <Typography variant="h6" sx={{mb:2}}>
           Clearance
         </Typography>
@@ -265,7 +260,7 @@ export default function Faq({}: Props) {
         </Accordion>
       </Box>
       
-      <Box sx={{mb:3}}>
+      <Box sx={{mb:3, width: '100%'}}>
         <Typography variant="h6" sx={{mb:2}}>
           Induction
         </Typography>
@@ -340,7 +335,7 @@ export default function Faq({}: Props) {
         </Accordion>
       </Box>
 
-      <Box sx={{mb:3}}>
+      <Box sx={{mb:3, width: '100%'}}>
         <Typography variant="h6" sx={{mb:2}}>
           Signing In
         </Typography>
@@ -394,7 +389,7 @@ export default function Faq({}: Props) {
         </Accordion>
       </Box>
       
-      <Box sx={{mb:3}}>
+      <Box sx={{mb:3, width: '100%'}}>
         <Typography variant="h6" sx={{mb:2}}>
           Working With Children Check (WWCC)
         </Typography>

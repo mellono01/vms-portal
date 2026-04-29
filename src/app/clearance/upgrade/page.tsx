@@ -36,6 +36,7 @@ export default function Portal({}: Props) {
 
   if(session?.user && selectedForm) {
     const prefilledValues = {
+        VMS_IsFullInduction: 'false',
         VMS_Capacity: 'Contractor',
         VMS_FirstName: session?.user?.FirstName || '',
         VMS_MiddleName: session?.user?.MiddleName || '',

@@ -20,7 +20,9 @@ export default function Portal({}: Props) {
   const existingUser = !(searchParams.get('existing') === 'false');
   // console.log('[Portal] existingUser:', existingUser);
 
-  const prefilledValues = {};
+  const prefilledValues = {
+    VMS_IsFullInduction: 'true',
+  };
 
   if(session?.user) {
     if(existingUser) {

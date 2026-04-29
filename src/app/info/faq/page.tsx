@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import NextLink from 'next/link'
 
 import {
   Box,
@@ -9,11 +8,11 @@ import {
 } from '@mui/material';
 
 // Components
-import Info from './Info';
+import Faq from './Faq';
 
 interface Props {}
 
-const pageTitle = 'Information and Contact';
+const pageTitle = 'Frequently Asked Questions (FAQs)';
 
 export default function InfoPage({}: Props) {
   const router = useRouter();
@@ -24,7 +23,7 @@ export default function InfoPage({}: Props) {
       <Typography variant="h4" sx={{mt:4, mb:4}}>
         {pageTitle}
       </Typography>
-      <Info />
+      <Faq />
     </Box>
   )
 }

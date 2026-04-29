@@ -1,4 +1,5 @@
 import { Box, Typography, styled } from "@mui/material";
+import Link from "next/link";
 
 import InductionStepper from "./InductionStepper";
 
@@ -17,18 +18,18 @@ export default function Info() {
           We are committed to ensuring the safety and well-being of all staff, students and visitors in our schools.
         </Typography>
         <BodyText sx={{mb:2}}>
-        As part of this commitment all visitors must complete a short online induction <strong>once</strong> and sign in using their issued CEDoW Token when arriving on site.
+        As part of this commitment all visitors to our sites must complete a short online induction <strong>once</strong> and sign in using their issued CEDoW Token when arriving on site.
         </BodyText>
         <InductionStepper />
-        <BodyText sx={{mb:2}}>
+        {/* <BodyText sx={{mb:2}}>
           For more information on how we handle your personal information please see our privacy policy.
-        </BodyText>
+        </BodyText> */}
         <BodyText sx={{mb:5}}>
-          If you have any questions please read the Frequently Asked Questions (FAQs) below or contact us <br />
+          If you have any questions please read the <Link href="/info/faq">Frequently Asked Questions (FAQs)</Link> or contact us:<br/><br/>
           P | {process.env.NEXT_PUBLIC_WWC_PHONE} (Monday to Friday, 9am to 5pm) <br />
           E | {process.env.NEXT_PUBLIC_WWC_EMAIL}
         </BodyText>
-        <BodyText sx={{mb:5}}>
+        <BodyText sx={{mb:5, fontSize: '18px'}}>
           <strong>Thank you for helping keep our schools a safe environment for everyone.</strong>
         </BodyText>
       </Box>
