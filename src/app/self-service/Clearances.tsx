@@ -13,7 +13,8 @@ import {
 } from '@/lib/providers/storeProvider'
 
 // Components
-import { ClearanceCard, PlaceholderClearance } from './components/ClearanceCard';
+import { ClearanceCard } from './components/ClearanceCard/ClearanceCard';
+import { PlaceholderClearance } from './components/ClearanceCard/PlaceholderClearance';
 import { EditModal } from './components/EditModal/EditModal';
 import DeleteModal from './DeleteModal';
 
@@ -30,7 +31,7 @@ const ShowClearances = () => {
 
 	// State
   const [editDetailsOpen, setEditDetailsOpen] = React.useState(false);
-  const [openCloseModal, setOpenCloseModal] = React.useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
 
 	const currentForms = userData?.Forms.map((form) => form.FormType.id) || [];
 	const isUnder18 = userData?.DateOfBirth
@@ -66,7 +67,8 @@ const ShowClearances = () => {
 									clearance={form}
 									setSelectedForm={setSelectedForm}
 									setEditDetailsOpen={setEditDetailsOpen}
-
+									setOpenDeleteModal={setOpenDeleteModal}
+									disableActions={false}
 								/>
 							)
 						})
@@ -99,8 +101,8 @@ const ShowClearances = () => {
 					onClose={() => setEditDetailsOpen(false)}
 				/>
 				<DeleteModal
-					open={openCloseModal}
-					setOpen={setOpenCloseModal}
+					open={openDeleteModal}
+					setOpen={setOpenDeleteModal}
 				/>
 			</Box>
 		)

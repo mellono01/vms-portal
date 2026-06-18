@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react'
+import dayjs from 'dayjs';
 
 import {
   Box,
@@ -13,7 +14,9 @@ import {
 } from '@/lib/providers/storeProvider'
 
 import FeatheryForm from './FeatheryForm';
-import dayjs from 'dayjs';
+
+// DTO
+import { PrefillForm } from '@lib/dto/feathery/PrefilledForm.dto';
 
 interface Props {}
 
@@ -32,16 +35,16 @@ export default function Portal({}: Props) {
     }
   }, [selectedForm, router]);
 
-  console.log('Selected Form:', selectedForm);
+  console.warn('Selected Form:', selectedForm);
 
-  if(session?.user && selectedForm) {
-    const prefilledValues = {
+  if(session?.user?.details && selectedForm) {
+    const prefilledValues: PrefillForm = {
         VMS_IsFullInduction: 'false',
         VMS_Capacity: 'Contractor',
-        VMS_FirstName: session?.user?.FirstName || '',
-        VMS_MiddleName: session?.user?.MiddleName || '',
-        VMS_LastName: session?.user?.LastName || '',
-        VMS_DOB: dayjs(session?.user?.DateOfBirth).format('YYYY-MM-DD') || undefined,
+        VMS_FirstName: session?.user?.details?.FirstName || '',
+        VMS_MiddleName: session?.user?.details?.MiddleName || '',
+        VMS_LastName: session?.user?.details?.LastName || '',
+        VMS_DOB: dayjs(session?.user?.details?.DateOfBirth).format('YYYY-MM-DD') || undefined,
         VMS_Email: selectedForm?.EmailAddress || '',
         VMS_Phone: selectedForm?.PhoneNumber || '',
     };

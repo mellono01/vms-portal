@@ -14,6 +14,7 @@ import {
 
 import {
   ChevronRight,
+  KeyboardArrowDown,
 } from '@mui/icons-material';
 
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -23,7 +24,11 @@ import { useStore } from '@/lib/providers/storeProvider';
 
 // Components
 import { Modal } from '@/app/components/Modal';
-import { ClearanceCard } from '../ClearanceCard';
+import { ClearanceCard } from '../ClearanceCard/ClearanceCard';
+
+// API
+import putForm from '@/lib/api/requests/putForm';
+import getEntityForms from '@/lib/api/requests/getEntityForms';
 
 // Helpers
 import {
@@ -55,6 +60,8 @@ export const EditModal: React.FC<EditModalProps> = ({
 
   const {
     selectedForm,
+    setUserData,
+    setFetchingUserData,
   } = useStore((store) => store);
 
   const [originalData, setOriginalData] = React.useState<Form | null>(null);
@@ -63,6 +70,9 @@ export const EditModal: React.FC<EditModalProps> = ({
 	const [updatingData, setUpdatingData] = React.useState(false);
 
 	const wwccRequired = isWwccRequired(formData?.FormType?.id || '');
+
+  const noopSetSelectedForm = React.useCallback((_form: Form) => {}, []);
+  const noopSetOpen = React.useCallback((_open: boolean) => {}, []);
 
   // Initialize form data when modal opens or rowData changes
   React.useEffect(() => {
@@ -97,10 +107,33 @@ export const EditModal: React.FC<EditModalProps> = ({
 
 			if(wwccRequired && ((formData.WwccExpiryDate !== originalData?.WwccExpiryDate) || (formData.WwccNumber !== originalData?.WwccNumber))) {
 				updatedForm.FormStatus = {
-					id: process.env.VITE_FORM_STATUS_RENEWING ?? '',
+					id: process.env.NEXT_PUBLIC_FORM_STATUS_RENEWING ?? '',
 					Name: "Renewing"
 				}
 			}
+
+      setUpdatingData(true);
+      
+      // Call API to update form details
+      await putForm({ data: updatedForm })
+      .then(async (res) => {
+        console.log('Form updated successfully:', res);
+        setUpdatingData(false);
+
+        setFetchingUserData(true);
+        await getEntityForms({ 
+          CedowToken: session?.user.details?.CedowToken ?? '', 
+          LastName: session?.user.details?.LastName ?? '' 
+        }).then((data) => {
+          setFetchingUserData(false);
+          console.log('Updated forms:', data);
+          setUserData(data[0]);
+          onClose();
+        }).catch((err) => {
+          setFetchingUserData(false);
+          console.error('Error fetching updated forms:', err);
+        });
+      });
     }
   };
 
@@ -162,7 +195,7 @@ export const EditModal: React.FC<EditModalProps> = ({
         onClose={() => {}} // Disable default close behavior
         title={`Update Clearance Details`}
         actions={actions}
-        maxWidth={false}
+        maxWidth={'lg'}
         showCloseButton={false} // Hide the X button in the title bar
       >
         <Box sx={{width:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent: 'center', mt:3}}>
@@ -172,7 +205,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                 (formData?.FormType?.id !== process.env.NEXT_PUBLIC_FORM_TYPES_VOLUNTEEREXEMPT && 
                 formData?.FormType?.id !== process.env.NEXT_PUBLIC_FORM_TYPES_CONTRACTOREXEMPT)
                 && <>
-                  <Grid size={2}>
+                  <Grid size={{ xs: 4, sm: 2 }}>
                     <TextField fullWidth id="wwcc-number-input" label="WWCC Number *" variant="outlined"
                         value={formData?.WwccNumber}
                         onChange={(e)=>{ 
@@ -183,7 +216,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                         }}
                     />
                   </Grid>
-                  <Grid size={2}>
+                  <Grid size={{ xs: 4, sm: 2 }}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker 
                       sx={{ width: '100%' }}
@@ -224,7 +257,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                   </Grid>
                 </>
               }
-              <Grid size={2}>
+              <Grid size={{ xs: 4, sm: 2 }}>
                 <TextField fullWidth id="phone-number-input" label="Phone Number *" variant="outlined"
                     value={formData?.PhoneNumber}
                     onChange={(e)=>{ setFormData({...formData, PhoneNumber: e.target.value})}}
@@ -241,7 +274,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                     }
                 />
               </Grid>
-              <Grid size={2}>
+              <Grid size={{ xs: 4, sm: 2 }}>
                 <TextField fullWidth id="email-address-input" label="Email Address *" variant="outlined"
                     value={formData?.EmailAddress}
                     onChange={(e)=>{ setFormData({...formData, EmailAddress: e.target.value}) }}
@@ -258,13 +291,13 @@ export const EditModal: React.FC<EditModalProps> = ({
                     }
                 />
               </Grid>
-              <Grid size={2}>
+              <Grid size={{ xs: 4, sm: 2 }}>
                 <TextField fullWidth id="organisation-name-input" label="Organisation Name" variant="outlined"
                     defaultValue={formData?.OrganisationName}
                     onChange={(e)=>{ setFormData({...formData, OrganisationName: e.target.value}) }}
                 />
               </Grid>
-              <Grid size={2}>
+              <Grid size={{ xs: 4, sm: 2 }}>
                 <TextField fullWidth id="organisation-abn-input" label="Organisation ABN" variant="outlined"
                     defaultValue={formData?.OrganisationAbn}
                     onChange={(e)=>{ setFormData({...formData, OrganisationAbn: e.target.value}) }}
@@ -286,22 +319,42 @@ export const EditModal: React.FC<EditModalProps> = ({
               </Box>
             : null
           }
-          <Box sx={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', mt:2, mb:2, width: '95%'}}>
-            <ClearanceCard
-              key={`edit-modal-clearance-original-${formData._id}`}
-              mode='view'
-              clearance={selectedForm!}
-              expanded={true}
-              setExpanded={undefined}
-            />
-            <ChevronRight sx={{m:2}} />
-            <ClearanceCard
-              key={`edit-modal-clearance-updated-${formData._id}`}
-              mode='view'
-              clearance={formData}
-              expanded={true}
-              setExpanded={undefined}
-            />
+          <Box
+            sx={{
+              display:'flex',
+              flexDirection:{ xs: 'column', sm: 'row' },
+              alignItems:'center',
+              justifyContent:'center',
+              mt:2,
+              mb:2,
+              width: '95%',
+              gap: { xs: 1, sm: 0 },
+            }}
+          >
+            <Box sx={{ width: { xs: '100%', sm: 'auto' }, display: 'flex', justifyContent: 'center' }}>
+              <ClearanceCard
+                key={`edit-modal-clearance-original-${formData._id}`}
+                mode='view'
+                clearance={selectedForm!}
+                disableActions={true}
+                setSelectedForm={noopSetSelectedForm}
+                setEditDetailsOpen={noopSetOpen}
+                setOpenDeleteModal={noopSetOpen}
+              />
+            </Box>
+            <ChevronRight sx={{ m: 2, display: { xs: 'none', sm: 'block' } }} />
+            <KeyboardArrowDown sx={{ m: 0.5, display: { xs: 'block', sm: 'none' } }} />
+            <Box sx={{ width: { xs: '100%', sm: 'auto' }, display: 'flex', justifyContent: 'center' }}>
+              <ClearanceCard
+                key={`edit-modal-clearance-updated-${formData._id}`}
+                mode='view'
+                clearance={formData}
+                disableActions={true}
+                setSelectedForm={noopSetSelectedForm}
+                setEditDetailsOpen={noopSetOpen}
+                setOpenDeleteModal={noopSetOpen}
+              />
+            </Box>
           </Box>
         </Box>
       </Modal>

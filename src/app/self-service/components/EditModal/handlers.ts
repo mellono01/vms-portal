@@ -10,9 +10,9 @@ import {
 
 export function isWwccRequired(formTypeId: string): boolean {
   if ( 
-    formTypeId !== process.env.VITE_FORM_TYPES_VOLUNTEEREXEMPT &&
-    formTypeId !== process.env.VITE_FORM_TYPES_CONTRACTOREXEMPT &&
-    formTypeId !== process.env.VITE_FORM_STATUS_UNDER18
+    formTypeId !== process.env.NEXT_PUBLIC_FORM_TYPES_VOLUNTEEREXEMPT &&
+    formTypeId !== process.env.NEXT_PUBLIC_FORM_TYPES_CONTRACTOREXEMPT &&
+    formTypeId !== process.env.NEXT_PUBLIC_FORM_STATUS_UNDER18
   ) return true;
   return false;
 }

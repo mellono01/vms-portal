@@ -10,13 +10,15 @@ export function useStatusColour() {
       case process.env.NEXT_PUBLIC_FORM_STATUS_UNDER18:
         return theme.palette.statusColors?.green || statusColors.green;
       case process.env.NEXT_PUBLIC_FORM_STATUS_APPLIED:
+      case process.env.NEXT_PUBLIC_FORM_STATUS_APPLIEDNOC:
       case process.env.NEXT_PUBLIC_FORM_STATUS_RENEWING:
       case process.env.NEXT_PUBLIC_FORM_STATUS_INPROGRESS:
         return theme.palette.statusColors?.yellow || statusColors.yellow;
       case process.env.NEXT_PUBLIC_FORM_STATUS_EXPIRING:
-      case process.env.NEXT_PUBLIC_FORM_STATUS_DECLINED:
+      case process.env.NEXT_PUBLIC_FORM_STATUS_APPLIEDNOC:
         return theme.palette.statusColors?.orange || statusColors.orange;
       case process.env.NEXT_PUBLIC_FORM_STATUS_CLOSED:
+      case process.env.NEXT_PUBLIC_FORM_STATUS_DECLINED:
       case process.env.NEXT_PUBLIC_FORM_STATUS_EXPIRED:
       case process.env.NEXT_PUBLIC_FORM_STATUS_BARRED:
       case process.env.NEXT_PUBLIC_FORM_STATUS_INTERIMBARRED:

@@ -18,17 +18,25 @@ import {
 	VisibilityOff
 } from '@mui/icons-material';
 
+// Store
+import { useStore } from '@/lib/providers/storeProvider';
+
 // Components
 import ContactUs from '@/app/components/ContactUs';
 
 const PersonalDetails = () => {
   const { data: session, status } = useSession();
 	const [showToken, setShowToken] = useState(false);
+		
+	// Store Hooks
+	const { 
+		userData,
+	} = useStore((store) => store);
 
-	if (session?.user) {
+	if (session?.user && userData) {
 		return (
 			<Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '95%'}}>
-				<Typography variant='h5' sx={{ mb: 5 }}>Hi {session.user?.FirstName}, here are your details:</Typography>
+				<Typography variant='h5' sx={{ mb: 5 }}>Hi {userData.FirstName}, here are your details:</Typography>
 				<Card sx={{mb: 5, maxWidth: '450px'}}>
 					<CardContent sx={{display: 'flex', flexDirection:'column'}} >
 						<Grid container columns={5} spacing={1}>
@@ -37,7 +45,7 @@ const PersonalDetails = () => {
 							</Grid>
 							<Grid size={3} sx={{display: 'flex', alignItems: 'center'}}>
 								{showToken ? (
-									<Typography variant='body1' sx={{mr: 0.5}}>{session.user.CedowToken}</Typography>
+									<Typography variant='body1' sx={{mr: 0.5}}>{userData.CedowToken}</Typography>
 								) : (
 									<Typography variant='body1' sx={{mr: 0.5, fontStyle: 'italic', color: 'text.secondary'}}>Hidden</Typography>
 								)}
@@ -49,25 +57,25 @@ const PersonalDetails = () => {
 								<Typography variant='body1'>First Name:</Typography>
 							</Grid>
 							<Grid size={3}>
-								<Typography variant='body1'>{session.user.FirstName}</Typography>
+								<Typography variant='body1'>{userData.FirstName}</Typography>
 							</Grid>
 							<Grid size={2}>
 								<Typography variant='body1'>Middle Name:</Typography>
 							</Grid>
 							<Grid size={3}>
-								<Typography variant='body1'>{!!session.user?.MiddleName ? session.user?.MiddleName : '(not provided)'}</Typography>
+								<Typography variant='body1'>{!!userData.MiddleName ? userData.MiddleName : '(not provided)'}</Typography>
 							</Grid>
 							<Grid size={2}>
 								<Typography variant='body1'>Last Name:</Typography>
 							</Grid>
 							<Grid size={3}>
-								<Typography variant='body1'>{session.user?.LastName}</Typography>
+								<Typography variant='body1'>{userData.LastName}</Typography>
 							</Grid>
 							<Grid size={2}>
 								<Typography variant='body1'>Date of Birth:</Typography>
 							</Grid>
 							<Grid size={3}>
-								<Typography variant='body1'>{dayjs(session.user?.DateOfBirth).format('DD/MM/YYYY')}</Typography>
+								<Typography variant='body1'>{dayjs(userData.DateOfBirth).format('DD/MM/YYYY')}</Typography>
 							</Grid>
 						</Grid>
 						<Divider sx={{mt:2, mb:2}} />

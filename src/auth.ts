@@ -67,7 +67,7 @@ export const authOptions: AuthOptions = {
         EmailId: { label: 'Email Id', type: 'text' },
         MfaCode: { label: 'MFA Code', type: 'text' },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials, _req) {
         try {
           const result = await getEntityForms({
             CedowToken: credentials?.CedowToken || '',
@@ -86,6 +86,7 @@ export const authOptions: AuthOptions = {
 
             if(mfaValid.valid) {
               console.log('MFA code valid, signing in user');
+              console.log('User details from API:', result[0]);
               const id = mfaValid.id;
 
               // Remove email/mfaCode from db
@@ -94,9 +95,11 @@ export const authOptions: AuthOptions = {
                .catch((err) => console.error('Error deleting MFA code:', err));
               
               return {
+                id: id,
                 method: 'mfa-sign-in',
-                ...result[0],
                 mfaVerified: true, // Mark as MFA verified
+                details: result[0],
+                email: unmaskedEmail,
               };
             }
 
@@ -106,6 +109,7 @@ export const authOptions: AuthOptions = {
             }
             return null;
           }
+          return null;
         } catch (err) {
           console.error('[mfa-sign-in] Error in authorize function:', err);
           return null;
@@ -164,11 +168,11 @@ export const authOptions: AuthOptions = {
         token = {
           ...token,
           ...user,
-          method: (user as any).method ?? 'unknown',
-          cedowToken: (user as any).cedowToken ?? (user as any).CedowToken ?? '',
-          lastName: (user as any).lastName ?? (user as any).LastName ?? '',
-          emails: (user as any).emails ?? [],
           mfaVerified: (user as any).mfaVerified ?? false,
+          method: (user as any).method ?? 'unknown',
+          cedowToken: (user as any).cedowToken ?? (user as any).cedowToken ?? '',
+          lastName: (user as any).lastName ?? (user as any).lastName ?? '',
+          emails: (user as any).emails ?? [],
         };
       }
       

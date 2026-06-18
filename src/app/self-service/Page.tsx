@@ -52,7 +52,8 @@ export default function SelfService({}: Props) {
       session &&
       session.user &&
       session.user.method === 'mfa-sign-in' &&
-      session.user.mfaVerified
+      session.user.mfaVerified &&
+      session.user.details
     ) {
       if(locations === null) {
         console.log('Locations not found in store. Fetching locations.');
@@ -72,8 +73,8 @@ export default function SelfService({}: Props) {
       console.warn("User signed in with MFA. Fetching details.")
       setFetchingUserData(true);
       getEntityForms({
-        CedowToken: session.user.CedowToken,
-        LastName: session.user.LastName,
+        CedowToken: session.user.details.CedowToken,
+        LastName: session.user.details.LastName,
       })
       .then((data) => {
         if(!!dataTagErrorSymbol) {

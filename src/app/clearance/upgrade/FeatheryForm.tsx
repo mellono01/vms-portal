@@ -22,20 +22,15 @@ import { init, Form, FormContext } from '@feathery/react';
 // Store
 import { useStore } from '@/lib/providers/storeProvider';
 
+// DTO
+import { PrefillForm } from '@lib/dto/feathery/PrefilledForm.dto';
+
 export default function FeatheryForm({
   from,
   prefilledValues,
 }: {
   from: 'upgrade' | 'new' | 'new-existing',
-  prefilledValues: {
-    Select4?: string; // Volunteer, Contractor, Staff
-    VMS_FirstName: string;
-    VMS_MiddleName: string;
-    VMS_LastName: string;
-    VMS_DOB: string | undefined;
-    VMS_Email: string;
-    VMS_Phone: string;
-  }
+  prefilledValues: PrefillForm
 }) {
   const { data: session, status } = useSession();
   // console.log('[FeatheryForm] User Session:', session);
@@ -43,10 +38,10 @@ export default function FeatheryForm({
     ((session?.user as { Claims?: Array<{ Name: string; id: string }> } | undefined)?.Claims ?? []);
   console.warn('Existing Forms:', existingForms); 
 
-  const {
-    selectedForm,
-    userData
-  } = useStore((store) => store);
+  // const {
+  //   selectedForm,
+  //   userData
+  // } = useStore((store) => store);
 
   const featherySdk = 'bb4b8927-47c8-4910-a6ba-ed492db9d98e' // SDK Key (Test)
 
