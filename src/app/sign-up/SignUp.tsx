@@ -47,7 +47,7 @@ export default function SignUp({}: Props) {
         setError('User already exists or invalid details')
       } else if (result?.ok) {
         // User session created successfully
-        router.push('/clearance/new?existing=false');
+        router.push('/induction/new?existing=false');
         router.refresh()
       }
     } catch (err) {

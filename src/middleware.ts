@@ -1,8 +1,9 @@
 import { withAuth } from "next-auth/middleware"
 import { NextResponse } from "next/server"
+import type { NextRequest } from 'next/server'
 
 export default withAuth(
-  function middleware(req) {
+  function middleware(req: NextRequest) {
     return NextResponse.next()
   },
   {
@@ -22,6 +23,6 @@ export const config = {
   matcher: [
     '/',
     // Exclude public routes
-    '/((?!sign-in|sign-up|recovery|info|api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!sign-in|sign-up|recovery|info|induction/complete|api|_next/static|_next/image|favicon.ico).*)',
   ]
 }

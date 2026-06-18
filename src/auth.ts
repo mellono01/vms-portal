@@ -41,6 +41,7 @@ export const authOptions: AuthOptions = {
               unmasked: EmailAddress, // Store unmasked for server-side use
               id: _id
             }));
+
             return {
               method: 'sign-in',
               id: credentials?.CedowToken || '', // Use CedowToken as a unique id
@@ -93,12 +94,15 @@ export const authOptions: AuthOptions = {
               await deleteMfa({ id })
                .then(() => console.log('MFA code deleted successfully'))
                .catch((err) => console.error('Error deleting MFA code:', err));
+
+              // Add refs to forms
+              const forms = result[0].Forms.map((form: any, index: number) => ({ ...form, ref: index }));
               
               return {
                 id: id,
                 method: 'mfa-sign-in',
                 mfaVerified: true, // Mark as MFA verified
-                details: result[0],
+                details: {...result[0], Forms: forms}, // Include all user details and forms
                 email: unmaskedEmail,
               };
             }
@@ -186,6 +190,7 @@ export const authOptions: AuthOptions = {
           session.user = { ...token } as any;
         } else {
           session.user.mfaVerified = false;
+          session.user.method = token.method;
           session.user.cedowToken = token.CedowToken as string;
           session.user.firstName = token.FirstName as string;
           session.user.lastName = token.LastName as string;

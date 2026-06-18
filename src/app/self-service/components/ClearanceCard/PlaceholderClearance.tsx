@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 
 import { 
-  Add
+  AddCircle as Add
 } from "@mui/icons-material";
 
 import { alpha } from '@mui/material/styles';
@@ -86,7 +86,7 @@ export const PlaceholderClearance = ({
       variant="outlined"
       sx={cardStyles}
       onClick={() => {
-        router.push('/clearance/new');
+        window.open('/vms/portal/induction/new', '_blank', 'noopener,noreferrer');
       }}
     >
       <CardHeader 

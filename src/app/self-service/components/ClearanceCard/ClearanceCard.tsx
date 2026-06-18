@@ -183,7 +183,7 @@ export function ClearanceCard({
   return (
     <>
       <Card 
-        elevation={8}
+        // elevation={8}
         sx={{
           position: 'relative',
           overflow: 'visible',

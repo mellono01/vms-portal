@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react'
@@ -23,13 +23,13 @@ import Clearances from './Clearances';
 import PersonalDetails from './PersonalDetails';
 import HelpMenu from './HelpMenu';
 import ErrorPage from '../error';
-import { dataTagErrorSymbol } from '@tanstack/react-query';
 
 interface Props {}
 
 export default function SelfService({}: Props) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [loadError, setLoadError] = useState(false);
 
   console.warn('Session data in SelfService component:', session?.user);
 
@@ -45,16 +45,23 @@ export default function SelfService({}: Props) {
     setFetchingLocations
   } = useStore((store) => store);
 
+  const shouldLoadSelfServiceData =
+    status === 'authenticated' &&
+    !!session?.user &&
+    session.user.method === 'mfa-sign-in' &&
+    session.user.mfaVerified &&
+    !!session.user.details;
+
   useEffect(() => {
     console.log('Checking session and status in useEffect:', { session, status });
-    if(
-      status === 'authenticated' &&
-      session &&
-      session.user &&
-      session.user.method === 'mfa-sign-in' &&
-      session.user.mfaVerified &&
-      session.user.details
-    ) {
+    if (shouldLoadSelfServiceData) {
+      const details = session?.user?.details;
+      if (!details) {
+        return;
+      }
+
+      setLoadError(false);
+
       if(locations === null) {
         console.log('Locations not found in store. Fetching locations.');
         setFetchingLocations(true);
@@ -73,28 +80,39 @@ export default function SelfService({}: Props) {
       console.warn("User signed in with MFA. Fetching details.")
       setFetchingUserData(true);
       getEntityForms({
-        CedowToken: session.user.details.CedowToken,
-        LastName: session.user.details.LastName,
+        CedowToken: details.CedowToken,
+        LastName: details.LastName,
       })
       .then((data) => {
-        if(!!dataTagErrorSymbol) {
-          // console.log('Fetched entity forms:', data);
+        if (data?.length > 0) {
           setUserData(data[0]);
           setFetchingUserData(false);
         } else {
           console.log("Response from getEntityForms is empty or undefined");
           setFetchingUserData(false);
-          throw new Error('No data returned from getEntityForms');
+          setLoadError(true);
         }
       })
       .catch((error) => {
         console.error('Error fetching entity forms:', error);
         setFetchingUserData(false);
+        setLoadError(true);
       });
     }
-  }, [session, status]);
+  }, [locations, session, setFetchingLocations, setFetchingUserData, setLocations, setUserData, shouldLoadSelfServiceData, status]);
 
-  if (fetchingUserData || fetchingLocations) {
+  useEffect(() => {
+    if (session?.user && userData && !userData.Forms) {
+      router.push('/induction/new');
+      router.refresh();
+    }
+  }, [router, session, userData]);
+
+  const isInitialLoad =
+    status === 'loading' ||
+    (shouldLoadSelfServiceData && !userData && !loadError);
+
+  if (isInitialLoad || fetchingUserData || fetchingLocations) {
     return (
       <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', mt:5}}>
        <Backdrop
@@ -113,9 +131,6 @@ export default function SelfService({}: Props) {
         <HelpMenu />
       </Box>
     );
-  } else if (session?.user && userData && !userData.Forms) {
-    router.push('/clearance/new');
-    router.refresh();
   } else {
     return (
       <ErrorPage />

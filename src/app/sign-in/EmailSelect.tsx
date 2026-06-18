@@ -25,7 +25,7 @@ export default function EmailSelect({
 }) {
   const { data: session } = useSession();
 
-  if (session?.user) {
+  if (session?.user && session.user.emails && session.user.emails.length > 0) {
     return (
       <>
         <Typography variant='body1' sx={{mb:2}}>

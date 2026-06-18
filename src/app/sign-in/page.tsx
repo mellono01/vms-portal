@@ -1,3 +1,8 @@
+import { redirect } from 'next/navigation'
+
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/auth'
+
 import {
   Box,
   Button,
@@ -10,7 +15,13 @@ import SignIn from '@/app/sign-in/SignIn';
 
 interface Props {}
 
-export default function SignInPage({}: Props) {
+export default async function SignInPage({}: Props) {
+  const session = await getServerSession(authOptions)
+
+  // Redirect if already authenticated
+  if (session) {
+    redirect('/')
+  }
 
   return (
     <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}>
