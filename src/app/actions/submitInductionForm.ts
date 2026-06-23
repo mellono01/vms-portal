@@ -16,12 +16,4 @@ export async function submitInductionForm(
   console.log('Form Data Submitted:', formFields)
   console.log('Form field data:', formFields.VMS_FirstName)
 
-  // Sign out "new" users
-  if (session?.user?.method === 'sign-up') {
-    console.log('[Portal] New user form submission, signing out user.')
-    redirect('/sign-out?callbackUrl=/vms/portal/induction/complete')
-  }
-
-  // Redirect to complete page
-  redirect('/induction/complete')
 }

@@ -38,7 +38,14 @@ export default function FeatheryForm({
 
   const handleFormComplete = async (formContext: FormContext) => {
     console.log('Form completed with context:',formContext.getFieldValues());
-    await submitInductionForm(formContext.getFieldValues());
+    await submitInductionForm(formContext.getFieldValues())
+    .then(() => {
+      // Sign out "new" users
+      if (session?.user?.method === 'sign-up') {
+        console.log('[Portal] New user form submission, signing out user.')
+        signOut({ redirectTo: '/induction/complete' })
+      }
+    });
   };
 
   if (session && session.user) {
