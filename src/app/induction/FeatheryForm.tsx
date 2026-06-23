@@ -8,6 +8,9 @@ import { useSession, signOut } from 'next-auth/react'
 
 import { init, Form, FormContext } from '@feathery/react';
 
+// Server Actions
+import { submitInductionForm } from '../actions/submitInductionForm';
+
 // DTO
 import { PrefillForm } from '@lib/dto/feathery/PrefilledForm.dto';
 
@@ -28,22 +31,17 @@ export default function FeatheryForm({
 
   const context = useRef<FormContext>(null);
 
-  const navigateToComplete = () => {
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
-    window.location.assign(`${basePath}/induction/complete`);
+  // const navigateToComplete = () => {
+  //   const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+  //   window.location.assign(`${basePath}/induction/complete`);
+  // };
+
+  const handleFormComplete = async (formContext: FormContext) => {
+    console.log('Form completed with context:',formContext.getFieldValues());
+    await submitInductionForm(formContext.getFieldValues());
   };
 
   if (session && session.user) {
-    const handleFormComplete = async () => {
-      if(session.user.method === 'sign-up') {
-        console.log('[Portal] Form completed, signing out user.');
-        await signOut({ redirect: false });
-        navigateToComplete();
-      } else {
-        navigateToComplete();
-      }
-    }
-
     return (
       <Form 
         formId='avGDYr' 

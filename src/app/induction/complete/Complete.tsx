@@ -1,11 +1,15 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
+
 import { 
   Box, 
   Typography
 } from "@mui/material";
 
 export default function InductionComplete() {
+  const { data: session } = useSession();
+  console.log('[InductionComplete] User Session:', session);
   return (
     <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', mt:5}}>
       <Typography variant="h4" sx={{mb:3}}>Induction Complete</Typography>

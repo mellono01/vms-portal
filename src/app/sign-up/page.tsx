@@ -19,9 +19,12 @@ export default async function SignUpPage({}: Props) {
   const session = await getServerSession(authOptions)
 
   // Redirect if already authenticated
-  if (session) {
-    redirect('/')
+  if (session && session.user) {
+    if(session.user.method === 'mfa-sign-in') redirect('/')
+    if(session.user.method === 'sign-up') redirect('/induction/new')
+    if(session.user.method === 'sign-in') redirect('/sign-in')
   }
+
   return (
     <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}>
       <Typography variant="h4" sx={{mt:4, mb:4}}>

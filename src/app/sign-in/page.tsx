@@ -19,8 +19,9 @@ export default async function SignInPage({}: Props) {
   const session = await getServerSession(authOptions)
 
   // Redirect if already authenticated
-  if (session) {
-    redirect('/')
+  if (session && session.user) {
+    if(session.user.method === 'mfa-sign-in') redirect('/')
+    if(session.user.method === 'sign-up') redirect('/induction/new')
   }
 
   return (

@@ -86,7 +86,8 @@ export const PlaceholderClearance = ({
       variant="outlined"
       sx={cardStyles}
       onClick={() => {
-        window.open('/vms/portal/induction/new', '_blank', 'noopener,noreferrer');
+        // window.open('/vms/portal/induction/new', '_blank', 'noopener,noreferrer');
+        router.push('/induction/new');
       }}
     >
       <CardHeader 

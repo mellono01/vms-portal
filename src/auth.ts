@@ -209,5 +209,10 @@ export const authOptions: AuthOptions = {
       return session;
     },
   },
+  events: {
+    async signOut(message) {
+      console.log('User signed out:', message);
+    },
+  },
   secret: process.env.NEXTAUTH_SECRET,
 }
