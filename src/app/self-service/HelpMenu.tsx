@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Box, 
   Button, 
@@ -212,12 +212,40 @@ const scenarios: HelpScenario[] = [
   }
 ];
 
+const HELP_MENU_COOKIE = 'vmsp_help_menu_closed';
+
+const getCookieValue = (name: string): string | null => {
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = document.cookie.match(new RegExp(`(?:^|; )${escapedName}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+};
+
+const setCookieValue = (name: string, value: string, days: number): void => {
+  const maxAge = days * 24 * 60 * 60;
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; samesite=lax`;
+};
+
 const HelpMenu = () => {
   const [open, setOpen] = useState(true);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
+  useEffect(() => {
+    const isClosed = getCookieValue(HELP_MENU_COOKIE) === 'true';
+    setOpen(!isClosed);
+  }, []);
+
   const toggleExpanded = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setCookieValue(HELP_MENU_COOKIE, 'true', 365);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+    setCookieValue(HELP_MENU_COOKIE, 'false', 365);
   };
 
   return (
@@ -271,7 +299,7 @@ const HelpMenu = () => {
             </Box>
             <IconButton
               size="small"
-              onClick={() => setOpen(false)}
+              onClick={handleClose}
               sx={{ p: 0.5, color: 'white' }}
             >
               <Close fontSize="small" sx={{ color: 'black' }} />
@@ -471,7 +499,7 @@ const HelpMenu = () => {
           variant="contained"
           color="secondary"
           // color="primary"
-          onClick={() => setOpen(true)}
+          onClick={handleOpen}
           startIcon={<HelpOutline />}
           sx={{
             borderRadius: '50px',
