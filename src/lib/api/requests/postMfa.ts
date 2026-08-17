@@ -29,13 +29,9 @@ export default async function postMfa({
       data: body,
     });
     
-    if(response.status === 200) {
-      return response.data;
-    } else {
-      throw new Error(`${logPrefix} VMS API responded with status ${response.status}`);
-    }
+    return response;
   } catch (error) {
-    console.error(`${logPrefix} Error during MFA request:`, error);
+    console.error(`${logPrefix} Error during MFA request`, error);
     throw error;
   }
 }

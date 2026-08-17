@@ -51,14 +51,12 @@ export default function SignUp({}: Props) {
         router.refresh()
       }
     } catch (err) {
-      console.error('Sign up error:', err)
+      console.error('Sign up error', err);
       setError('An error occurred')
     } finally {
       setLoading(false)
     }
   }
-
-  console.log('session:', session);
 
   return (
     <>

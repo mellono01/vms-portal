@@ -1,6 +1,11 @@
 "use server"
 
-import { v4 as uuid } from 'uuid';
+import { headers as nextHeaders } from 'next/headers';
+
+import {
+  CORRELATION_ID_HEADER,
+  getOrCreateCorrelationId,
+} from '@/lib/correlation-id';
 
 export async function vmsApi({
   endpointUrl,
@@ -25,20 +30,25 @@ export async function vmsApi({
 
   const username = process.env.VMS_API_BASIC_AUTH_USERNAME;
   const password = process.env.VMS_API_BASIC_AUTH_PASSWORD;
+  const requestHeaders = await nextHeaders();
+  const correlationId = getOrCreateCorrelationId(requestHeaders);
 
-  
-
-  const headers = new Headers({
+  const outboundHeaders = new Headers({
     'Authorization': `Basic ${btoa(`${username}:${password}`)}`,
     'Content-Type': 'application/json',
-    'x-correlation-id': uuid()
+    [CORRELATION_ID_HEADER]: correlationId
   });
 
   try {
-    console.log(`[VMS API Requestor] Making ${method} request to ${basePath+endpointUrl}`);
+    console.log(`[VMS API Requestor] Making request to ${basePath + endpointUrl}`, {
+      correlationId,
+      method,
+      endpointUrl,
+    });
+
     const response = await fetch(basePath+endpointUrl, {
       method,
-      headers,
+      headers: outboundHeaders,
       body: data ? JSON.stringify(data) : undefined,
     });
 
@@ -55,10 +65,23 @@ export async function vmsApi({
     }
 
     if(response.ok) {
-      return response.json();
+      const body = await response.json();
+      // Some VMS API endpoints wrap the payload in an envelope, e.g.
+      // { endpoint, method, status, timestamp, data }. Unwrap it so
+      // callers always receive the actual payload.
+      if (body && typeof body === 'object' && 'data' in body) {
+        return body.data;
+      }
+      return body;
     }
   } catch (error) {
-    console.error('VMS API request error:', error);
+    console.error('VMS API request error', {
+      correlationId,
+      method,
+      endpointUrl,
+      error,
+    });
+
     throw error;
   }
 }

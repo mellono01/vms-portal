@@ -28,10 +28,9 @@ interface Props {}
 
 export default function SelfService({}: Props) {
   const { data: session, status } = useSession();
+  
   const router = useRouter();
   const [loadError, setLoadError] = useState(false);
-
-  console.warn('Session data in SelfService component:', session?.user);
 
   // Store Hooks
   const { 
@@ -53,8 +52,7 @@ export default function SelfService({}: Props) {
     !!session.user.details;
 
   useEffect(() => {
-    console.log('Checking session and status in useEffect:', { session, status });
-    if (shouldLoadSelfServiceData) {
+    if (shouldLoadSelfServiceData && !userData && !loadError) {
       const details = session?.user?.details;
       if (!details) {
         return;
@@ -63,43 +61,34 @@ export default function SelfService({}: Props) {
       setLoadError(false);
 
       if(locations === null) {
-        console.log('Locations not found in store. Fetching locations.');
         setFetchingLocations(true);
         getLocations()
           .then((data) => {
-            console.log('Fetched locations:', data);
             setLocations(data);
             setFetchingLocations(false);
           })
           .catch((error) => {
-            console.error('Error fetching locations:', error);
             setFetchingLocations(false);
           });
       }
 
-      console.warn("User signed in with MFA. Fetching details.")
       setFetchingUserData(true);
-      getEntityForms({
-        CedowToken: details.CedowToken,
-        LastName: details.LastName,
-      })
+      getEntityForms()
       .then((data) => {
         if (data?.length > 0) {
           setUserData(data[0]);
           setFetchingUserData(false);
         } else {
-          console.log("Response from getEntityForms is empty or undefined");
           setFetchingUserData(false);
           setLoadError(true);
         }
       })
       .catch((error) => {
-        console.error('Error fetching entity forms:', error);
         setFetchingUserData(false);
         setLoadError(true);
       });
     }
-  }, [locations, session, setFetchingLocations, setFetchingUserData, setLocations, setUserData, shouldLoadSelfServiceData, status]);
+  }, [locations, session, setFetchingLocations, setFetchingUserData, setLocations, setUserData, shouldLoadSelfServiceData, status, userData]);
 
   useEffect(() => {
     if (session?.user && userData && !userData.Forms) {

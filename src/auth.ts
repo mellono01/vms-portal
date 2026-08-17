@@ -2,17 +2,44 @@ import { AuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 
 // API
-import getEntityForms from '@/lib/api/requests/getEntityForms';
+import { vmsApi } from '@/lib/api/vmsApiRequestor';
 import postEntityExists from '@/lib/api/requests/postEntityExists';
 import postMfaVerify from '@/lib/api/requests/postMfaVerify';
 import deleteMfa from './lib/api/requests/deleteMfa';
 
-function maskEmail(email: string): string {
+function maskEmail(email?: string): string {
+  if (!email || !email.includes('@')) {
+    return '';
+  }
   const [local, domain] = email.split('@');
   if (local.length <= 2) {
     return `${local[0]}***@${domain}`;
   }
   return `${local[0]}***${local[local.length - 1]}@${domain}`;
+}
+
+/**
+ * Internal helper used only during authentication, before a session exists.
+ * Accepts credentials explicitly — this is the authentication boundary itself.
+ * Not exported; not a server action.
+ */
+async function fetchEntityFormsByCredentials(CedowToken: string, LastName: string) {
+  const logPrefix = '[GET][EntityForms][Auth]';
+
+  if (!process.env.VMS_API_BASE_PATH) {
+    throw new Error(`${logPrefix} VMS API base path is not defined`);
+  }
+
+  const queryParams = new URLSearchParams();
+  queryParams.append('token', CedowToken.trim());
+  queryParams.append('lastName', LastName.trim());
+
+  const response = await vmsApi({
+    endpointUrl: `/entity/forms?${queryParams.toString()}`,
+    method: 'GET',
+  });
+
+  return response;
 }
 
 export const authOptions: AuthOptions = {
@@ -27,16 +54,17 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials) {
         try {
-          const result = await getEntityForms({
-            CedowToken: credentials?.CedowToken || '',
-            LastName: credentials?.LastName || '',
-          });
-          
+          const result = await fetchEntityFormsByCredentials(
+            credentials?.CedowToken || '',
+            credentials?.LastName || '',
+          );
+          console.log('Authorize result:', result);
+
           if(result.length > 0) {
             // Extract email addresses from Forms
             const emailData = result[0].Forms.map((
-              { EmailAddress, _id }: {EmailAddress: string, _id: string},
-            ) => ({ 
+              { EmailAddress, _id }: {EmailAddress?: string, _id: string},
+            ) => ({
               masked: maskEmail(EmailAddress), 
               unmasked: EmailAddress, // Store unmasked for server-side use
               id: _id
@@ -70,11 +98,11 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials, _req) {
         try {
-          const result = await getEntityForms({
-            CedowToken: credentials?.CedowToken || '',
-            LastName: credentials?.LastName || '',
-          });
-          
+          const result = await fetchEntityFormsByCredentials(
+            credentials?.CedowToken || '',
+            credentials?.LastName || '',
+          );
+
           if(result.length > 0) {
             // Extract unmasked email from the freshly fetched Forms data
             const emailId = credentials?.EmailId;
@@ -86,13 +114,10 @@ export const authOptions: AuthOptions = {
             });
 
             if(mfaValid.valid) {
-              console.log('MFA code valid, signing in user');
-              console.log('User details from API:', result[0]);
               const id = mfaValid.id;
 
               // Remove email/mfaCode from db
               await deleteMfa({ id })
-               .then(() => console.log('MFA code deleted successfully'))
                .catch((err) => console.error('Error deleting MFA code:', err));
 
               // Add refs to forms
@@ -102,13 +127,15 @@ export const authOptions: AuthOptions = {
                 id: id,
                 method: 'mfa-sign-in',
                 mfaVerified: true, // Mark as MFA verified
+                cedowToken: credentials?.CedowToken || '',
+                lastName: credentials?.LastName || '',
                 details: {...result[0], Forms: forms}, // Include all user details and forms
                 email: unmaskedEmail,
               };
             }
 
             if (!mfaValid.valid) {
-              console.log('Invalid MFA code');
+              console.warn('Invalid MFA code', { email: unmaskedEmail, enteredMfaCode: credentials?.MfaCode });
               return null;
             }
             return null;
@@ -137,6 +164,8 @@ export const authOptions: AuthOptions = {
             LastName: credentials?.LastName || '',
             Email: credentials?.Email || '',
           });
+
+          console.log("[sign-up] Entity exists response:", response);
           
           if (response.exists) {
             // User already exists, don't allow sign up
@@ -148,8 +177,8 @@ export const authOptions: AuthOptions = {
             method: 'sign-up',
             id: `temp-${Date.now()}`, // Temporary ID or generate one
             Email: credentials?.Email || '',
-            FirstName: credentials?.FirstName || '',
-            LastName: credentials?.LastName || '',
+            firstName: credentials?.FirstName || '',
+            lastName: credentials?.LastName || '',
             // Add any other fields
           };
 
@@ -186,17 +215,16 @@ export const authOptions: AuthOptions = {
       // Pass token data to the session
       if (session.user) {
         if (token.mfaVerified) {
-          console.log('[session] mfa verified');
           session.user = { ...token } as any;
         } else {
           session.user.mfaVerified = false;
           session.user.method = token.method;
-          session.user.cedowToken = token.CedowToken as string;
-          session.user.firstName = token.FirstName as string;
-          session.user.lastName = token.LastName as string;
+            session.user.cedowToken = token.cedowToken as string;
+            session.user.firstName = (token as any).firstName as string;
+            session.user.lastName = token.lastName as string;
           
           if(token.method === 'sign-up') {
-            session.user.email = token.Email as string;
+              session.user.email = (token as any).Email as string;
           } else if (token.method === 'sign-in') {
             // Store token data for server-side access (not sent to client)
             session.user.emails = (token.emails as any)?.map((email: any) => ({
@@ -207,11 +235,6 @@ export const authOptions: AuthOptions = {
         }
       }
       return session;
-    },
-  },
-  events: {
-    async signOut(message) {
-      console.log('User signed out:', message);
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

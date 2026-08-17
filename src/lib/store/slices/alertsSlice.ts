@@ -24,8 +24,7 @@ export const initialAlertsState: AlertsState = {
 
 export const createAlertsSlice: StateCreator<AlertsSlice> = set => ({
   ...initialAlertsState,
-  addAlert: (alert) => {
-    console.log(alert); 
+  addAlert: (alert) => { 
     set((state) => ({ alerts: [...state.alerts, alert] }))
   },
   removeAlert: (id) => {

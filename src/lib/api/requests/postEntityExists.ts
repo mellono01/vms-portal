@@ -24,7 +24,6 @@ export default async function postEntityExists({
     LastName: LastName.trim(),
     Email: Email.trim()
   };
-  console.log('Request body for postEntityExists:', body);
 
   try {
     const response = await vmsApi({
@@ -33,13 +32,9 @@ export default async function postEntityExists({
       data: body,
     });
     
-    if(response.status === 200) {
-      console.log('Response from postEntityExists:', response);
-      return response;
-    } else {
-      throw new Error(`${logPrefix} VMS API responded with status ${response.status}`);
-    }
+    return response;
   } catch (error) {
+    console.error(`${logPrefix} Error during postEntityExists request`, error);
     throw new Error(`${logPrefix} An error occurred: ${error instanceof Error ? error.message : String(error)}`);
   }
 }

@@ -16,13 +16,14 @@ import { PrefillForm } from '@lib/dto/feathery/PrefilledForm.dto';
 
 export default function FeatheryForm({
   prefilledValues,
+  featherySdk,
+  formId,
 }: {
   prefilledValues: PrefillForm
+  featherySdk: string
+  formId: string
 }) {
   const { data: session } = useSession();
-  console.log('[FeatheryForm] User Session:', session);
-
-  const featherySdk = 'bb4b8927-47c8-4910-a6ba-ed492db9d98e' // SDK Key (Test)
 
   // Initialize Feathery
   init(featherySdk, {
@@ -37,12 +38,12 @@ export default function FeatheryForm({
   // };
 
   const handleFormComplete = async (formContext: FormContext) => {
-    console.log('Form completed with context:',formContext.getFieldValues());
+    console.log('Form completed', formContext.getFieldValues());
     await submitInductionForm(formContext.getFieldValues())
     .then(() => {
       // Sign out "new" users
       if (session?.user?.method === 'sign-up') {
-        console.log('[Portal] New user form submission, signing out user.')
+        console.log('New user form submission, signing out user.', { user: session.user, method: session.user.method });
         signOut({ redirectTo: '/induction/complete' })
       }
     });
@@ -51,7 +52,7 @@ export default function FeatheryForm({
   if (session && session.user) {
     return (
       <Form 
-        formId='avGDYr' 
+        formId={formId} 
         contextRef={context}
         initialValues={prefilledValues}
         onFormComplete={handleFormComplete}

@@ -19,13 +19,8 @@ export default async function getLocations() {
       method: 'GET',
     });
     
-    if(response.status === 200) {
-      // console.log('Response from getEntityForms:', response);
-      return response.data;
-    } else {
-      throw new Error(`${logPrefix} VMS API responded with status ${response.status}`);
-    }
+    return response;
   } catch (error) {
-
+    console.error(`${logPrefix} Error during locations request`, error);
   }
 }

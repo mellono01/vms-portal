@@ -72,9 +72,7 @@ export function ActionButtons({
                 variant='text' 
                 sx={{textTransform: 'none'}}
                 onClick={() => {
-                  console.log('Selected Form for Upgrade:', clearance);
                   // setSelectedForm(clearance); 
-                  console.log('Navigating to upgrade page with form ref:', sessionForm);
                   router.push(`/induction/upgrade?form=${sessionForm?.ref}`);
                 }}
               >

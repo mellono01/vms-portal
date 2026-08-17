@@ -17,8 +17,6 @@ type PageProps = {
 
 export default async function UpgradeClearancePage({ searchParams }: PageProps) {
   const session = await getServerSession(authOptions)
-  
-  console.log('Session in UpgradeClearancePage:', session?.user?.details?.Forms)
 
   // Do API call here to check for existing clearances.
 
@@ -32,10 +30,12 @@ export default async function UpgradeClearancePage({ searchParams }: PageProps) 
       redirect('/');
     }
     
+    // Send to form existing form names (e.g. "VolunteerExempt")
+
     const prefilledValues: PrefillForm = {
       VMS_IsFullInduction: 'false',
       VMS_Capacity: 'Contractor',
-      VMS_CedowToken: '',
+      VMS_Token: '',
       VMS_FirstName: userData.FirstName || '',
       VMS_MiddleName: userData.MiddleName || '',
       VMS_LastName: userData.LastName || '',
@@ -45,7 +45,11 @@ export default async function UpgradeClearancePage({ searchParams }: PageProps) 
     };
 
     return (
-      <UpgradeClearance formValues={prefilledValues} />
+      <UpgradeClearance 
+        formValues={prefilledValues} 
+        featheryKey={process.env.FEATHERY_SDK_KEY ?? ''} 
+        formId={process.env.FEATHERY_FORM_ID ?? ''} 
+      />
     );
   } else {
     console.warn('No valid session found, redirecting to sign in page.');

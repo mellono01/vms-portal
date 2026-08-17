@@ -47,8 +47,6 @@ export default async function putForm({
 
   const endpointUrl = `/forms/${data._id?.trim()}`;
 
-  console.log('Request body for putForm:', data);
-
   try {
     const response = await vmsApi({
       endpointUrl: endpointUrl,
@@ -56,13 +54,9 @@ export default async function putForm({
       data,
     });
     
-    if(response.status === 200) {
-      console.log('Response from putForm:', response);
-      return response;
-    } else {
-      throw new Error(`${logPrefix} VMS API responded with status ${response.status}`);
-    }
+    return response;
   } catch (error) {
+    console.error(`${logPrefix} Error during putForm request`, error);
     throw new Error(`${logPrefix} An error occurred: ${error instanceof Error ? error.message : String(error)}`);
   }
 };

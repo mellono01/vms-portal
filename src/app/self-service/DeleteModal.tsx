@@ -72,8 +72,6 @@ const DeleteModal = ({
     }
   }, [session?.user, open]);
 
-  console.log('updatedForm in DeleteModal:', updatedForm);
-
   const closeClearance = async () => {
     const updatedForm = {
       ...selectedForm,
@@ -89,21 +87,18 @@ const DeleteModal = ({
     // Call API to update form details
     await putForm({ data: updatedForm })
     .then(async (res) => {
-      console.log('Form updated successfully:', res);
+      console.log('Form updated successfully', res);
       setUpdatingData(false);
 
       setFetchingUserData(true);
-      await getEntityForms({ 
-        CedowToken: session?.user.details?.CedowToken ?? '', 
-        LastName: session?.user.details?.LastName ?? '' 
-      }).then((data) => {
+      await getEntityForms().then((data) => {
         setFetchingUserData(false);
-        console.log('Updated forms:', data);
+        console.log('Updated forms fetched successfully', data);
         setUserData(data[0]);
         setOpen(false);
       }).catch((err) => {
         setFetchingUserData(false);
-        console.error('Error fetching updated forms:', err);
+        console.error('Error fetching updated forms', err);
       });
     });
   }

@@ -11,14 +11,24 @@ import { PrefillForm } from '@lib/dto/feathery/PrefilledForm.dto';
 
 interface Props {
   formValues: PrefillForm;
+  featheryKey: string;
+  formId: string;
 }
 
-export default function UpgradeClearance({ formValues }: Props) {
-  console.log('[Portal] Prefilled Values:', formValues);
+export default function UpgradeClearance({ 
+  formValues, 
+  featheryKey,
+  formId
+}: Props) {
+  console.log('Prefilled Values', formValues);
 
   return (
     <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', mt:5}}>
-      <FeatheryForm prefilledValues={formValues}/>
+      <FeatheryForm 
+        prefilledValues={formValues} 
+        featherySdk={featheryKey} 
+        formId={formId} 
+      />
     </Box>
   );
 

@@ -93,7 +93,7 @@ export const EditModal: React.FC<EditModalProps> = ({
 
   const handleSave = async () => {
     if (isDetailsValid({ formData, wwccRequired }) && formData && formData._id) {
-      console.log('Saving updated details: ', formData);
+      console.log('Saving updated details', formData);
       let updatedForm = { 
         ...formData,
         WwccNumber: !!formData?.WwccNumber ? formData?.WwccNumber : undefined,
@@ -117,21 +117,17 @@ export const EditModal: React.FC<EditModalProps> = ({
       // Call API to update form details
       await putForm({ data: updatedForm })
       .then(async (res) => {
-        console.log('Form updated successfully:', res);
+        console.log('Form updated successfully', res);
         setUpdatingData(false);
 
         setFetchingUserData(true);
-        await getEntityForms({ 
-          CedowToken: session?.user.details?.CedowToken ?? '', 
-          LastName: session?.user.details?.LastName ?? '' 
-        }).then((data) => {
+        await getEntityForms().then((data) => {
           setFetchingUserData(false);
-          console.log('Updated forms:', data);
           setUserData(data[0]);
           onClose();
         }).catch((err) => {
           setFetchingUserData(false);
-          console.error('Error fetching updated forms:', err);
+          console.error('Error fetching updated forms', err);
         });
       });
     }

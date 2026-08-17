@@ -58,7 +58,6 @@ export default function SignIn({}: Props) {
   //     session.user.emails?.length === 1 &&
   //     selectedEmail === null
   //   ) {
-  //     console.log('Only one email available, proceeding with MFA email send');
   //     setSelectedEmail(session.user.emails[0].id);
   //   }
 
@@ -71,9 +70,6 @@ export default function SignIn({}: Props) {
   //     handleSendMfaEmail();
   //   }
   // }, [session, selectedEmail]);
-  
-  console.log('SignIn session user:', session?.user);
-  console.log('selectedEmail:', selectedEmail);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -91,14 +87,12 @@ export default function SignIn({}: Props) {
         setError('Invalid credentials');
         setLoading(false);
       } else if (result?.ok) {
-        console.log('result from signIn:', result); 
         setLoading(false);
         return;
       }
 
-      return new Error('Unexpected sign-in result');
     } catch (err) {
-      console.error('Sign in error:', err);
+      console.error('Sign in error', err);
       setError('[SignIn] An error occurred');
     } finally {
       setLoading(false);
@@ -118,7 +112,7 @@ export default function SignIn({}: Props) {
     try {
       const email = session?.user?.emails?.find(e => e.id === selectedEmail);
       if (!email) {
-        console.log('Selected email not found in user emails');
+        console.warn('Selected email not found in user emails');
         setError('Invalid email selection');
         setLoading(false);
         return;
@@ -135,7 +129,7 @@ export default function SignIn({}: Props) {
       });
 
       if (!response.ok) {
-        console.log('Failed to send MFA code, response not ok:', response);
+        console.error('Failed to send MFA code, response not ok', response);
         throw new Error('Failed to send MFA code');
       }
 
@@ -143,7 +137,7 @@ export default function SignIn({}: Props) {
       setMfaStep(true);
       setError(null);
     } catch (err) {
-      console.error('Email selection error:', err);
+      console.error('Email selection error', err);
       setError('An error occurred');
     } finally {
       setLoading(false);
@@ -165,14 +159,14 @@ export default function SignIn({}: Props) {
       });
 
       if (result?.ok) {
-        console.log('MFA verification successful, signing in user');
+        console.log('MFA verification successful, user signed in', { email: selectedEmail });
         setError(null);
         setLoading(false);
       } else {
         setError('Invalid code, please try again.');
       }
     } catch (err) {
-      console.error('Sign in error:', err);
+      console.error('Sign in error', err);
     } finally {
       setLoading(false);
     }

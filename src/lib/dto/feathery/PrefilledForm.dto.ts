@@ -1,8 +1,9 @@
 export interface PrefillForm {
   [key: string]: string,
   VMS_IsFullInduction: 'false' | 'true',
-  VMS_Capacity: string,
-  VMS_CedowToken: string,
+  // VMS_Capacity: string,
+  VMS_PriorClearances: string,
+  VMS_Token: string,
   VMS_FirstName: string,
   VMS_MiddleName: string,
   VMS_LastName: string,
