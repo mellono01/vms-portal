@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import NextLink from 'next/link'
 
@@ -25,9 +25,16 @@ export default function SignUp({}: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [FirstName, setFirstName] = useState('Oliver');
-  const [LastName, setLastName] = useState('Mellon');
-  const [Email, setEmail] = useState('test@test.com');
+  const [FirstName, setFirstName] = useState('');
+  const [LastName, setLastName] = useState('');
+  const [Email, setEmail] = useState('');
+
+  // DEV ONLY: Prefill form with test data
+  useEffect(() => {
+    setFirstName('Olivia');
+    setLastName('Mellon');
+    setEmail('test@test.com');
+  }, [process.env.NODE_ENV === 'development']);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

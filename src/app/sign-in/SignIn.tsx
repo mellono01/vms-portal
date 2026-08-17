@@ -42,6 +42,14 @@ export default function SignIn({}: Props) {
   const [mfaStep, setMfaStep] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
 
+  // DEV ONLY: Prefill form with test data
+  useEffect(() => {
+    setSignInDetails({
+      CedowToken: 'DOW2AA5A2',
+      LastName: 'Test',
+    });
+  }, [process.env.NODE_ENV === 'development']);
+
   // User is signed in, redirect to home
   useEffect(() => {
     if(session?.user && session.user.mfaVerified) {
