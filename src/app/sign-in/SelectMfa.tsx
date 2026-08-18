@@ -56,7 +56,7 @@ export default function SelectMfa({
           sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
           open={loading}
         >
-        <CircularProgress color="inherit" />
+          <CircularProgress color="inherit" />
         </Backdrop>
         <Typography variant='body1'>
           To sign in we will send you a verification code which you will need to enter in.

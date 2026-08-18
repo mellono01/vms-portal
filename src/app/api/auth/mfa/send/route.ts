@@ -4,6 +4,7 @@ import { getToken } from "next-auth/jwt";
 // API
 import postMfa from '@/lib/api/requests/postMfa';
 import postEmail from '@/lib/api/requests/postEmail';
+import postSms from '@/lib/api/requests/postSms';
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,11 +40,12 @@ export async function POST(req: NextRequest) {
             console.error('Error sending email', error);
           });
         } else {
-          console.log('[dev/test] Sending MFA code to email', { unmaskedEmail, code:postedMfa.Code });
+          const testEmail = "mellono01@dow.catholic.edu.au"; // Replace with actual email sending logic,
+          console.log('[dev/test] Sending MFA code to email', { testEmail, code:postedMfa.Code });
           await postEmail({
             Name: token?.firstName ?? '',
             MfaCode: postedMfa.Code,
-            Email: "mellono01@dow.catholic.edu.au" // Replace with actual email sending logic,
+            Email: testEmail
           })
           .then((response) => {
             console.log('Email sent successfully', response);
@@ -55,7 +57,40 @@ export async function POST(req: NextRequest) {
       }
 
       if(unmaskedPhone !== '') {
-        // TODO: send code to phone using unmaskedPhone
+        if(process.env.NODE_ENV === 'production') {
+          console.log('Sending MFA code via sms', { unmaskedPhone, code:postedMfa.Code });
+          await postSms({
+            MfaCode: postedMfa.Code,
+            Phone: unmaskedPhone
+          })
+          .then((response) => {
+            console.log('Sms sent successfully', {
+              MfaCode: postedMfa.Code,
+              Phone: unmaskedPhone,
+              response
+            });
+          })
+          .catch((error) => {
+            console.error('Error sending sms', error);
+          });
+        } else {
+          let testPhone = "0429505737"; // Olivia Mobile
+          console.log('[dev/test] Sending MFA code to phone', { testPhone, code:postedMfa.Code });
+          await postSms({
+            MfaCode: postedMfa.Code,
+            Phone: testPhone
+          })
+          .then((response) => {
+            console.log('Sms sent successfully', {
+              MfaCode: postedMfa.Code,
+              Phone: testPhone,
+              response
+            });
+          })
+          .catch((error) => {
+            console.error('Error sending sms', error);
+          });
+        }
       }
     }
 
