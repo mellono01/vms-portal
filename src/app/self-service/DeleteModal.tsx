@@ -7,18 +7,10 @@ import {
   Box,
   Button,
 	CircularProgress,
-  List,
-  ListItem,
-  ListItemText,
   Typography,
   useMediaQuery,
   useTheme
 } from '@mui/material';
-
-import { 
-  ChevronRight,
-  ExpandMore as Expand
-} from '@mui/icons-material';
 
 // Store
 import { useStore } from '@/lib/providers/storeProvider';
@@ -133,26 +125,15 @@ const DeleteModal = ({
       <Modal
         open={open}
         onClose={() => setOpen(false)} // Disable default close behavior
-        title={`Delete Clearance`}
+        title={`Are you sure you want to delete this clearance?`}
         actions={actions}
         maxWidth={'md'}
         showCloseButton={false} // Hide the X button in the title bar
       >
         <Box sx={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent: 'center'}}>
-          <Typography variant="h6" align="center">
-            Are you sure you want to delete this clearance?
-          </Typography>
-          <Typography variant="body1" align="center" sx={{ mt: 2 }}>
+          <Typography variant="body1" align="center">
             You will no longer be able to use this clearance at any CEDoW sites and will not receive notifications about this clearance.
           </Typography>
-          {/* <List sx={{ listStyleType: 'disc', p:2}}>
-            <ListItem sx={{ display: 'list-item', p:0, pl: 2, m:0 }}>
-              <ListItemText primary="You will no longer be able to use this clearance at any CEDoW sites." />
-            </ListItem>
-            <ListItem sx={{ display: 'list-item', p:0, pl: 2, m:0 }}>
-              <ListItemText primary="You will no longer receive notifications from us about this clearance." />
-            </ListItem>
-          </List> */}
           <Box sx={{display:'flex', flexDirection:{xs:'column', sm:'row'}, alignItems:'center', justifyContent: 'center', mt: 3, mb:3}}>
             <ClearanceCard
               key={`delete-modal-clearance-updated-${selectedForm._id}`}

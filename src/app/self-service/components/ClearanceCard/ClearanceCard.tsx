@@ -167,18 +167,18 @@ export function ClearanceCard({
     };
   }, []);
 
-  if (isMobile && mode === 'view') {
-    return (
-      <ClearanceCardMobile
-        mode={mode}
-        disableActions={disableActions}
-        clearance={clearance}
-        setSelectedForm={setSelectedForm}
-        setEditDetailsOpen={setEditDetailsOpen}
-        setOpenDeleteModal={setOpenDeleteModal}
-      />
-    );
-  }
+  // if (isMobile && mode === 'view') {
+  //   return (
+  //     <ClearanceCardMobile
+  //       mode={mode}
+  //       disableActions={disableActions}
+  //       clearance={clearance}
+  //       setSelectedForm={setSelectedForm}
+  //       setEditDetailsOpen={setEditDetailsOpen}
+  //       setOpenDeleteModal={setOpenDeleteModal}
+  //     />
+  //   );
+  // }
 
   return (
     <>
@@ -253,7 +253,7 @@ export function ClearanceCard({
           <ClearanceUsage clearance={clearance} />
         </Collapse>
         <CardContent sx={{display: 'flex', flexDirection:'column', paddingBottom: 0}} >
-          <Grid container columns={5} spacing={1} sx={{mb:1}}>
+          <Grid container columns={7} spacing={1} sx={{mb:1}}>
             <Grid size={2} sx={{display: 'flex', flexDirection: 'row', alignContent: 'center', alignItems: 'center'}}>
               <Typography 
                 variant="body1"
@@ -262,7 +262,7 @@ export function ClearanceCard({
                 Status:
               </Typography>
             </Grid>
-            <Grid size={3} sx={{display: 'flex', flexDirection: 'row', alignContent: 'center', alignItems: 'center'}}>
+            <Grid size={5} sx={{display: 'flex', flexDirection: 'row', alignContent: 'center', alignItems: 'center'}}>
               <Chip 
                 label={
                   <Box sx={{display: 'flex', flexDirection: 'row', alignContent: 'center', alignItems: 'center', justifyContent: 'center'}}>
@@ -290,7 +290,7 @@ export function ClearanceCard({
                     Expires:
                   </Typography>
                 </Grid>
-                <Grid size={3} sx={{display: 'flex', flexDirection: 'row', alignContent: 'center', alignItems: 'center'}}>
+                <Grid size={5} sx={{display: 'flex', flexDirection: 'row', alignContent: 'center', alignItems: 'center'}}>
                   <Typography variant="body1" sx={{display: 'flex', flexDirection: 'row', alignContent: 'center', alignItems: 'center'}}>
                     {getExpiryDateFormat(clearance.ExpiryDate ? new Date(clearance.ExpiryDate) : null, clearance.FormStatus.id) ? getExpiryDateFormat(clearance.ExpiryDate ? new Date(clearance.ExpiryDate) : null, clearance.FormStatus.id) : null}
                     { 
@@ -307,7 +307,7 @@ export function ClearanceCard({
             <Grid size={2}>
               <Typography variant='body1'>Locations: </Typography>
             </Grid>
-            <Grid size={3}>
+            <Grid size={5}>
               {
                 clearance.Locations && clearance.Locations.length > 0
                 ? clearance.Locations.map((location) => {
@@ -333,7 +333,7 @@ export function ClearanceCard({
                 <Grid size={2}>
                   <Typography variant='body1'>WWCC Number: </Typography>
                 </Grid>
-                <Grid size={3}>
+                <Grid size={5}>
                   { mode === 'edit' && (
                     <TextField
                       fullWidth
@@ -355,7 +355,7 @@ export function ClearanceCard({
                 <Grid size={2}>
                   <Typography variant='body1'>WWCC Expiry{mode==='edit'?'*: ' : ': '}</Typography>
                 </Grid>
-                <Grid size={3}>
+                <Grid size={5}>
                   { mode === 'edit' && (
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
@@ -398,7 +398,7 @@ export function ClearanceCard({
             <Grid size={2}>
               <Typography variant='body1'>Phone Number: </Typography>
             </Grid>
-            <Grid size={3}>
+            <Grid size={5}>
               { mode === 'edit' && (
                 <TextField
                   fullWidth
@@ -423,7 +423,7 @@ export function ClearanceCard({
             <Grid size={2}>
               <Typography variant='body1'>Email: </Typography>
             </Grid>
-            <Grid size={3}>
+            <Grid size={5}>
               { mode === 'edit' && (
                 <TextField
                   fullWidth
@@ -438,15 +438,16 @@ export function ClearanceCard({
                 />
               )}
               { mode === 'view' && (
-                <Typography variant='body1'>
-                  {clearance.EmailAddress ? clearance.EmailAddress : '(none)'}
+                <Typography variant='body1' sx={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                  {/* {clearance.EmailAddress ? clearance.EmailAddress : '(none)'} */}
+                  very.long.testing.email@email.com.au
                 </Typography>
               )}
             </Grid>
             <Grid size={2}>
               <Typography variant='body1'>Organisation: </Typography>
             </Grid>
-            <Grid size={3}>
+            <Grid size={5}>
               { mode === 'edit' && (
                 <TextField
                   fullWidth
@@ -462,7 +463,7 @@ export function ClearanceCard({
 
               )}
               { mode === 'view' && (
-                <Typography variant='body1'>
+                <Typography variant='body1' sx={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                   {clearance.OrganisationName ? clearance.OrganisationName : '(none)'}
                 </Typography>
               )}
@@ -470,7 +471,7 @@ export function ClearanceCard({
             <Grid size={2}>
               <Typography variant='body1'>Organisation ABN: </Typography>
             </Grid>
-            <Grid size={3}>
+            <Grid size={5}>
               { mode === 'edit' && (
                 <TextField
                   fullWidth
@@ -485,7 +486,7 @@ export function ClearanceCard({
                 />
               )}
               { mode === 'view' && (
-                <Typography variant='body1'>
+                <Typography variant='body1' sx={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                   {clearance.OrganisationAbn ? clearance.OrganisationAbn : '(none)'}
                 </Typography>
               )}

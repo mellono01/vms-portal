@@ -15,6 +15,7 @@ declare module "next-auth" {
       firstName?: string;
       lastName: string;
       emails: { masked: string; id: string }[];
+      phones: { masked: string; id: string }[];
       email?: string;
       details?: GetEntityFormsResponse;
     }

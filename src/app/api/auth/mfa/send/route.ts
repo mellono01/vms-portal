@@ -3,34 +3,59 @@ import { getToken } from "next-auth/jwt";
 
 // API
 import postMfa from '@/lib/api/requests/postMfa';
-
-async function generateMfaCode(): Promise<string> {
-  // Generate 6-digit code
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
-  return code;
-}
+import postEmail from '@/lib/api/requests/postEmail';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+    console.log('Received MFA send request', { body, token });
+
+    // Unmask values
     const unmaskedEmail = token?.emails?.find((e: any) => e.id === body?.EmailId)?.unmasked ?? '';
+    const unmaskedPhone = token?.phones?.find((p: any) => p.id === body?.PhoneId)?.unmasked ?? '';
 
-    const mfaCode = await generateMfaCode();
+    console.log('Generating MFA code', { unmaskedEmail, unmaskedPhone });
+    const postedMfa = await postMfa({
+      Email: unmaskedEmail,
+      Phone: unmaskedPhone,
+    });
 
-    if(mfaCode) {
-      // Save mfa code to DB
-      console.log('Sending MFA code to DB', { mfaCode, unmaskedEmail });
-      const postedMfa = await postMfa({
-        Email: unmaskedEmail,
-        MfaCode: mfaCode,
-      });
+    if(postedMfa) {
+      console.log('MFA code created in DB', postedMfa);
 
-      if(postedMfa) {
-        console.log('MFA code stored successfully', { unmaskedEmail });
+      if(unmaskedEmail !== '') {
+        if(process.env.NODE_ENV === 'production') {
+          console.log('Sending MFA code to email', { unmaskedEmail, code:postedMfa.Code });
+          await postEmail({
+            Name: token?.name ?? '',
+            MfaCode: postedMfa.Code,
+            Email: unmaskedEmail
+          })
+          .then((response) => {
+            console.log('Email sent successfully', response);
+          })
+          .catch((error) => {
+            console.error('Error sending email', error);
+          });
+        } else {
+          console.log('[dev/test] Sending MFA code to email', { unmaskedEmail, code:postedMfa.Code });
+          await postEmail({
+            Name: token?.firstName ?? '',
+            MfaCode: postedMfa.Code,
+            Email: "mellono01@dow.catholic.edu.au" // Replace with actual email sending logic,
+          })
+          .then((response) => {
+            console.log('Email sent successfully', response);
+          })
+          .catch((error) => {
+            console.error('Error sending email', error);
+          });
+        }
+      }
 
-        // TODO: send code to email using unmaskedEmail
-        console.log('Sending MFA code to email', { unmaskedEmail });
+      if(unmaskedPhone !== '') {
+        // TODO: send code to phone using unmaskedPhone
       }
     }
 

@@ -42,7 +42,7 @@ const ShowClearances = () => {
 		return (
 			<Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}>
 				<Typography variant='h5' sx={{ textAlign: 'center', mb: 5 }}>
-					Here are your clearances & contact details:
+					Your clearances & contact details:
 				</Typography>
 
 				<Box sx={{
@@ -54,6 +54,7 @@ const ShowClearances = () => {
 					flexWrap: 'wrap',
 					justifyContent: 'center',
 					alignItems: 'flex-start',
+					alignContent: 'center',
 					gap: 2,
 					width: '95%', 
 					mb:8

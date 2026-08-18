@@ -2,11 +2,19 @@
 
 import { vmsApi } from "../vmsApiRequestor";
 
+interface PostMfaVerifyParams {
+  Code: string;
+  Email?: string;
+  Phone?: string;
+}
+
 export default async function postMfaVerify({
   Email,
+  Phone,
   MfaCode,
 }:{
   Email: string;
+  Phone: string;
   MfaCode: string;
 }) {
   const logPrefix = '[POST][MfaVerify]';
@@ -17,10 +25,12 @@ export default async function postMfaVerify({
 
   const endpointUrl = '/mfa/verify'
 
-  const body = {
-    Email: Email.trim(),
+  let body: PostMfaVerifyParams = {
     Code: MfaCode.trim(),
   };
+
+  if (Email !== undefined) body.Email = Email.trim();
+  if (Phone !== undefined) body.Phone = Phone.trim();
 
   try {
     const response = await vmsApi({

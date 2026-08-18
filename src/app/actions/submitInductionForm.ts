@@ -42,7 +42,7 @@ function prepareBody(formFields: Record<string, any>) {
     body.WwccNumber = formFields.VMS_WwccNumber;
     body.WwccExpiryDate = formFields.VMS_WwccExpiry;
     body.State = ""; //?
-    body.Locations = []; //?
+    body.Locations = Array.isArray(formFields.VMS_SchoolSelect2) ? formFields.VMS_SchoolSelect2 : []; //?
     body.Undertaking = {
       version: 2,
       statements: formFields.VMS_VolunteerUndertaking

@@ -39,11 +39,12 @@ export default async function NewClearancePage({}: Props) {
     let clearances = "";
     
     if(existingUser) {
-      clearances = (session.user.details?.Forms ?? []).map((form) => {
-        return normalizeClearance(form.FormType.Name);
-      })
-      .filter((clearance): clearance is Exclude<NormalizedClearance, ''> => clearance !== '')
-      .join(', ');
+      clearances = (session.user.details?.Forms ?? [])
+        .map((form) => {
+          return normalizeClearance(form.FormType.Name);
+        })
+        .filter((clearance): clearance is Exclude<NormalizedClearance, ''> => clearance !== '')
+        .join(', ');
     }
     
     let prefilledValues: PrefillForm = {

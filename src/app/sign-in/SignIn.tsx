@@ -19,7 +19,7 @@ import {
 } from '@/lib/providers/storeProvider'
 
 // Components
-import EmailSelect from './EmailSelect';
+import SelectMfa from './SelectMfa';
 import MfaCodeInput from './MfaCodeInput';
 
 interface Props {}
@@ -38,6 +38,7 @@ export default function SignIn({}: Props) {
   const [error, setError] = useState<string | null>(null);
   
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
+  const [selectedPhone, setSelectedPhone] = useState<string | null>(null);
 
   const [mfaStep, setMfaStep] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
@@ -108,20 +109,29 @@ export default function SignIn({}: Props) {
   }
 
   const handleSendMfaEmail = async () => {
-    if (selectedEmail === null) {
-      console.warn('No email selected for MFA code send');
-      setError('Please select an email address');
+    if (selectedEmail === null && selectedPhone === null) {
+      console.warn('No mfa method selected for MFA code send');
+      setError('Please select an email or phone number');
       return;
     }
+
+    let mfaMethod = '';
+    if (selectedEmail) mfaMethod = 'email';
+    if (selectedPhone) mfaMethod = 'phone';
+
+    console.log('Sending MFA code via', mfaMethod, { selectedEmail, selectedPhone });
+
 
     setLoading(true);
     setError('');
 
     try {
       const email = session?.user?.emails?.find(e => e.id === selectedEmail);
-      if (!email) {
-        console.warn('Selected email not found in user emails');
-        setError('Invalid email selection');
+      const phone = session?.user?.phones?.find(p => p.id === selectedPhone);
+
+      if (!email && !phone) {
+        console.warn('Selected MFA method not found in user data');
+        setError('Invalid selection');
         setLoading(false);
         return;
       }
@@ -132,7 +142,8 @@ export default function SignIn({}: Props) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          EmailId: selectedEmail
+          EmailId: selectedEmail,
+          PhoneId: selectedPhone
         })
       });
 
@@ -162,12 +173,13 @@ export default function SignIn({}: Props) {
         CedowToken: signInDetails?.CedowToken || '',
         LastName: signInDetails?.LastName || '',
         EmailId: selectedEmail,
+        PhoneId: selectedPhone,
         MfaCode: mfaCode,
         redirect: false,
       });
 
       if (result?.ok) {
-        console.log('MFA verification successful, user signed in', { email: selectedEmail });
+        console.log('MFA verification successful, user signed in.');
         setError(null);
         setLoading(false);
       } else {
@@ -254,9 +266,11 @@ export default function SignIn({}: Props) {
     //   );
     // }
     return (
-        <EmailSelect 
+        <SelectMfa 
           loading={loading}
           selectedEmail={selectedEmail || ''}
+          selectedPhone={selectedPhone || ''}
+          setSelectedPhone={setSelectedPhone}
           setSelectedEmail={setSelectedEmail}
           handleSendCode={handleSendMfaEmail}
         />

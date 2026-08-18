@@ -18,6 +18,14 @@ function maskEmail(email?: string): string {
   return `${local[0]}***${local[local.length - 1]}@${domain}`;
 }
 
+function maskPhone(phone?: string): string {
+  if (!phone || phone.length < 4) {
+    return '';
+  }
+  const last3 = phone.slice(-3);
+  return `**** *** ${last3}`;
+}
+
 /**
  * Internal helper used only during authentication, before a session exists.
  * Accepts credentials explicitly — this is the authentication boundary itself.
@@ -61,12 +69,33 @@ export const authOptions: AuthOptions = {
           console.log('Authorize result:', result);
 
           if(result.length > 0) {
-            // Extract email addresses from Forms
-            const emailData = result[0].Forms.map((
+            // Extract unique email addresses from Forms
+            const uniqueEmails = result[0].Forms.filter((
+              { EmailAddress }: {EmailAddress?: string},
+              index: number,
+              forms: {EmailAddress?: string}[],
+            ) => forms.findIndex((f) => f.EmailAddress === EmailAddress) === index);
+
+            const emailData = uniqueEmails.map((
               { EmailAddress, _id }: {EmailAddress?: string, _id: string},
             ) => ({
-              masked: maskEmail(EmailAddress), 
+              masked: maskEmail(EmailAddress),
               unmasked: EmailAddress, // Store unmasked for server-side use
+              id: _id
+            }));
+
+            // Extract unique phone numbers from Forms
+            const uniquePhones = result[0].Forms.filter((
+              { PhoneNumber }: {PhoneNumber?: string},
+              index: number,
+              forms: {PhoneNumber?: string}[],
+            ) => forms.findIndex((f) => f.PhoneNumber === PhoneNumber) === index);
+
+            const phoneData = uniquePhones.map((
+              { PhoneNumber, _id }: {PhoneNumber?: string, _id: string},
+            ) => ({
+              masked: maskPhone(PhoneNumber),
+              unmasked: PhoneNumber, // Store unmasked for server-side use
               id: _id
             }));
 
@@ -74,8 +103,10 @@ export const authOptions: AuthOptions = {
               method: 'sign-in',
               id: credentials?.CedowToken || '', // Use CedowToken as a unique id
               cedowToken: credentials?.CedowToken || '',
+              firstName: result[0].FirstName || '',
               lastName: credentials?.LastName || '',
               emails: emailData, // Unmasked emails stored in token
+              phones: phoneData, // Unmasked phones stored in token
               mfaVerified: false, // Mark as pending MFA verification
             };
           }
@@ -94,6 +125,7 @@ export const authOptions: AuthOptions = {
         CedowToken: { label: 'Cedow Token', type: 'text' },
         LastName: { label: 'Last Name', type: 'text' },
         EmailId: { label: 'Email Id', type: 'text' },
+        PhoneId: { label: 'Phone Id', type: 'text' },
         MfaCode: { label: 'MFA Code', type: 'text' },
       },
       async authorize(credentials, _req) {
@@ -107,9 +139,13 @@ export const authOptions: AuthOptions = {
             // Extract unmasked email from the freshly fetched Forms data
             const emailId = credentials?.EmailId;
             const unmaskedEmail = result[0].Forms.find((form: any) => form._id === emailId)?.EmailAddress;
+
+            const phoneId = credentials?.PhoneId;
+            const unmaskedPhone = result[0].Forms.find((form: any) => form._id === phoneId)?.PhoneNumber;
             
             const mfaValid = await postMfaVerify({
               Email: unmaskedEmail,
+              Phone: unmaskedPhone,
               MfaCode: credentials?.MfaCode ?? '',
             });
 
@@ -131,11 +167,12 @@ export const authOptions: AuthOptions = {
                 lastName: credentials?.LastName || '',
                 details: {...result[0], Forms: forms}, // Include all user details and forms
                 email: unmaskedEmail,
+                phone: unmaskedPhone,
               };
             }
 
             if (!mfaValid.valid) {
-              console.warn('Invalid MFA code', { email: unmaskedEmail, enteredMfaCode: credentials?.MfaCode });
+              console.warn('Invalid MFA code', { email: unmaskedEmail, phone: unmaskedPhone, enteredMfaCode: credentials?.MfaCode });
               return null;
             }
             return null;
@@ -206,6 +243,7 @@ export const authOptions: AuthOptions = {
           cedowToken: (user as any).cedowToken ?? (user as any).cedowToken ?? '',
           lastName: (user as any).lastName ?? (user as any).lastName ?? '',
           emails: (user as any).emails ?? [],
+          phones: (user as any).phones ?? [],
         };
       }
       
@@ -230,6 +268,10 @@ export const authOptions: AuthOptions = {
             session.user.emails = (token.emails as any)?.map((email: any) => ({
               masked: email.masked,
               id: email.id,
+            }));
+            session.user.phones = (token.phones as any)?.map((phone: any) => ({
+              masked: phone.masked,
+              id: phone.id,
             }));
           }
         }

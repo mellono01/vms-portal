@@ -92,6 +92,8 @@ export function ClearanceCardMobile({
     <Card
       elevation={12}
       sx={{
+        position: 'relative',
+        overflow: 'visible',
         width: '100%',
         maxWidth: '450px',
       }}
@@ -130,12 +132,12 @@ export function ClearanceCardMobile({
 
       <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          <Typography variant="body1" sx={{ color: 'text.secondary' }}>
             Status:
           </Typography>
           <Chip
             label={
-              <Typography variant="body2" sx={{ lineHeight: 1.2 }}>
+              <Typography variant="body1" sx={{ lineHeight: 1.2 }}>
                 {statusLabel}
               </Typography>
             }
@@ -153,10 +155,10 @@ export function ClearanceCardMobile({
 
         {expiryText && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" sx={{ minWidth: 58, color: 'text.secondary' }}>
+            <Typography variant="body1" sx={{ minWidth: 58, color: 'text.secondary' }}>
               Expires:
             </Typography>
-            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
               {expiryText}
               {clearance.FormStatus.id === process.env.NEXT_PUBLIC_FORM_STATUS_EXPIRING ? (
                 <Warning sx={{ fontSize: '18px', color: cardColour, ml: 0.5 }} />
@@ -165,14 +167,14 @@ export function ClearanceCardMobile({
           </Box>
         )}
 
-        <Box>
-          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 0.25 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.5 }}>
+          <Typography variant="body1" sx={{ color: 'text.secondary', mb: 0.25 }}>
             Locations:
           </Typography>
           {locationNames.map((locationName, locationIndex) => (
             <Typography
               key={`${clearance._id ?? clearance.FormType.id}-location-${locationIndex}`}
-              variant="body2"
+              variant="body1"
             >
               {locationName}
             </Typography>
@@ -187,19 +189,19 @@ export function ClearanceCardMobile({
         ].includes(clearance.FormType.id) && (
           <>
             <Box>
-              <Typography variant="body2" sx={{ color: 'text.secondary', mb: 0.25 }}>
+              <Typography variant="body1" sx={{ color: 'text.secondary', mb: 0.25 }}>
                 WWCC Number:
               </Typography>
-              <Typography variant="body2">
+              <Typography variant="body1">
                 {clearance.WwccNumber ? clearance.WwccNumber : '(none)'}
               </Typography>
             </Box>
 
             <Box>
-              <Typography variant="body2" sx={{ color: 'text.secondary', mb: 0.25 }}>
+              <Typography variant="body1" sx={{ color: 'text.secondary', mb: 0.25 }}>
                 WWCC Expiry:
               </Typography>
-              <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
                 {clearance.WwccExpiryDate ? dayjs(clearance.WwccExpiryDate).format('DD/MM/YYYY') : '(none)'}
                 {clearance.FormStatus.id === process.env.NEXT_PUBLIC_FORM_STATUS_EXPIRING ? (
                   <Warning sx={{ fontSize: '18px', color: cardColour, ml: 0.5 }} />
@@ -210,31 +212,31 @@ export function ClearanceCardMobile({
         )}
 
         <Box>
-          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 0.25 }}>
+          <Typography variant="body1" sx={{ color: 'text.secondary', mb: 0.25 }}>
             Phone Number:
           </Typography>
-          <Typography variant="body2">{clearance.PhoneNumber ? clearance.PhoneNumber : '(none)'}</Typography>
+          <Typography variant="body1">{clearance.PhoneNumber ? clearance.PhoneNumber : '(none)'}</Typography>
         </Box>
 
         <Box>
-          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 0.25 }}>
+          <Typography variant="body1" sx={{ color: 'text.secondary', mb: 0.25 }}>
             Email:
           </Typography>
-          <Typography variant="body2">{clearance.EmailAddress ? clearance.EmailAddress : '(none)'}</Typography>
+          <Typography variant="body1">{clearance.EmailAddress ? clearance.EmailAddress : '(none)'}</Typography>
         </Box>
 
         <Box>
-          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 0.25 }}>
+          <Typography variant="body1" sx={{ color: 'text.secondary', mb: 0.25 }}>
             Organisation:
           </Typography>
-          <Typography variant="body2">{clearance.OrganisationName ? clearance.OrganisationName : '(none)'}</Typography>
+          <Typography variant="body1">{clearance.OrganisationName ? clearance.OrganisationName : '(none)'}</Typography>
         </Box>
 
         <Box>
-          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 0.25 }}>
+          <Typography variant="body1" sx={{ color: 'text.secondary', mb: 0.25 }}>
             Organisation ABN:
           </Typography>
-          <Typography variant="body2">{clearance.OrganisationAbn ? clearance.OrganisationAbn : '(none)'}</Typography>
+          <Typography variant="body1">{clearance.OrganisationAbn ? clearance.OrganisationAbn : '(none)'}</Typography>
         </Box>
       </CardContent>
 
