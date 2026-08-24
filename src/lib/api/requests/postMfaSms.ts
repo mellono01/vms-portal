@@ -2,7 +2,7 @@
 
 import { emailApi } from "../nodeMailerRequestor";
 
-export default async function postSms({
+export default async function postMfaSms({
   MfaCode,
   Phone
 }:{
