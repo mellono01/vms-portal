@@ -37,6 +37,9 @@ export default function FeatheryForm({
   //   window.location.assign(`${basePath}/induction/complete`);
   // };
 
+  console.warn('form context', context.current);
+  console.log('form fields', context.current?.getFormFields());
+
   const handleFormComplete = async (formContext: FormContext) => {
     console.log('Form completed', formContext);
     console.log('Form fields', formContext.getFieldValues());
@@ -48,14 +51,14 @@ export default function FeatheryForm({
       (Array.isArray(fields.VMS_VolunteerUndertaking2) && fields.VMS_VolunteerUndertaking2.length > 0)
     ) {
       console.log('Induction form is complete, sending to DB.');
-      await submitInductionForm(formContext.getFieldValues())
-      .then(() => {
-        // Sign out "new" users
-        if (session?.user?.method === 'sign-up') {
-          console.log('New user form submission, signing out user.', { user: session.user, method: session.user.method });
-          signOut({ redirectTo: '/induction/complete' })
-        }
-      });
+      // await submitInductionForm(formContext.getFieldValues())
+      // .then(() => {
+      //   // Sign out "new" users
+      //   if (session?.user?.method === 'sign-up') {
+      //     console.log('New user form submission, signing out user.', { user: session.user, method: session.user.method });
+      //     signOut({ redirectTo: '/induction/complete' })
+      //   }
+      // });
     } else {
       console.log('Induction form is not complete, not sending to DB.');
     }

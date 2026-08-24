@@ -8,12 +8,16 @@ import { signIn } from 'next-auth/react'
 import { useSession } from 'next-auth/react'
 
 import {
+  Alert,
+  Backdrop,
   Box,
   Button,
-  Divider,
+  CircularProgress,
+  Paper,
   TextField,
   Typography,
 } from '@mui/material';
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 
 interface Props {}
 
@@ -66,75 +70,120 @@ export default function SignUp({}: Props) {
   }
 
   return (
-    <>
-      <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '80%'}}>
-        <Typography variant='body1' sx={{mb:2, width: '95%', textAlign: 'center'}}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%',
+        px: {xs: 2, sm: 5},
+        py: {xs: 2, sm: 5},
+      }}
+    >
+      <Backdrop
+        sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
+      <Paper
+        elevation={1}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: '100%',
+          maxWidth: 600,
+          bgcolor: 'background.paper',
+          p: {xs: 3, sm: 5},
+        }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            width: 60,
+            height: 60,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: 'primary.light',
+            color: 'primary.contrastText',
+            mb: 2,
+          }}
+        >
+          <PersonAddOutlinedIcon fontSize='large' />
+        </Paper>
+
+        <Typography variant='h4' sx={{textAlign: 'center', mb: 2}}>
+          Sign Up
+        </Typography>
+        <Typography variant='body1' color='text.secondary' sx={{textAlign: 'center', mb: 1}}>
           To complete our induction and receive your CEDoW Token please start by entering your details below.
         </Typography>
-        <Typography variant='body1' sx={{mb:4, width: '95%', textAlign: 'center'}}>
+        <Typography variant='body1' color='text.secondary' sx={{textAlign: 'center', mb: 3}}>
           If you have already been issued a CEDoW Token please <NextLink href='/sign-in'>sign in</NextLink> instead.
         </Typography>
-        { 
-          error && (
-            <Typography variant='body1' sx={{mb:4, color: 'red'}}>
-              {error}
-            </Typography>
-          )
-        }
-        <Box sx={{display: 'flex', flexDirection: 'column', gap: 1}}>
-          <TextField 
-            id='textfield-firstName' 
-            label='First Name' 
+
+        {error && (
+          <Alert
+            severity='error'
+            variant='filled'
+            sx={{display: 'flex', justifyContent: 'center', mb: 3, width: '100%', maxWidth: 400}}
+          >
+            {error}
+          </Alert>
+        )}
+
+        <Box sx={{display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 400, mb: 4}}>
+          <TextField
+            id='textfield-firstName'
+            label='First Name'
             variant='outlined'
-            size='small'
-            sx={{width: '400px'}}
+            sx={{width: '100%'}}
             value={FirstName}
             onChange={(e) => {setFirstName(e.target.value)}}
           />
-          <TextField 
-            id='textfield-lastName' 
-            label='Last Name' 
-            variant='outlined' 
-            size='small'
-            sx={{width: '400px'}}
+          <TextField
+            id='textfield-lastName'
+            label='Last Name'
+            variant='outlined'
+            sx={{width: '100%'}}
             value={LastName}
             onChange={(e) => {setLastName(e.target.value)}}
           />
-          <TextField 
-            id='textfield-email' 
-            label='Email' 
-            variant='outlined' 
-            size='small'
-            sx={{width: '400px'}}
+          <TextField
+            id='textfield-email'
+            label='Email'
+            variant='outlined'
+            sx={{width: '100%'}}
             value={Email}
             onChange={(e) => {setEmail(e.target.value)}}
           />
         </Box>
-        <Button 
-          variant='contained' 
-          sx={{mt: 2}}
+
+        <Button
+          variant='contained'
+          size='large'
+          sx={{width: '100%', maxWidth: 352}}
           disabled={loading}
           onClick={handleSubmit}
         >
-          Go
+          {loading ? 'Signing up...' : 'Go'}
         </Button>
-        <Box sx={{mt:5}}>
-          <NextLink 
-            href='/recovery'
-            style={{textDecoration: 'none'}}
->
+
+        <Box sx={{mt: 4}}>
+          <NextLink href='/recovery' style={{textDecoration: 'none'}}>
             Forgot your Cedow Token?
           </NextLink>
         </Box>
-        <Box sx={{mt:2}}>
-          <NextLink 
-            href='/info' 
-            style={{ textDecoration: 'none' }}
-          > 
+        <Box sx={{mt: 2}}>
+          <NextLink href='/info' style={{textDecoration: 'none'}}>
             Need help or more information?
           </NextLink>
         </Box>
-      </Box>
-    </>
+      </Paper>
+    </Box>
   );
 }

@@ -27,9 +27,6 @@ export default async function SignUpPage({}: Props) {
 
   return (
     <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}>
-      <Typography variant="h4" sx={{mt:4, mb:4}}>
-        Sign Up
-      </Typography>
       <SignUp/>
     </Box>
   );

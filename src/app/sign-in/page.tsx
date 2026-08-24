@@ -25,10 +25,17 @@ export default async function SignInPage({}: Props) {
   }
 
   return (
-    <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}>
-      <Typography variant="h4" sx={{mt:4, mb:4}}>
+    <Box 
+      sx={{
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        width: '100%'
+      }}
+    >
+      {/* <Typography variant="h4" sx={{mt:4, mb:4}}>
         Sign In
-      </Typography>
+      </Typography> */}
       <SignIn/>
     </Box>
   );

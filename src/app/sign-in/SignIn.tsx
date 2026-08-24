@@ -8,11 +8,18 @@ import { signIn } from 'next-auth/react'
 import { useSession } from 'next-auth/react'
 
 import {
+  Alert,
+  Backdrop,
   Box,
   Button,
+  CircularProgress,
+  Paper,
   TextField,
   Typography,
 } from '@mui/material';
+import {
+  Person as SignInIcon
+} from '@mui/icons-material';
 
 import {
   useStore,
@@ -42,6 +49,7 @@ export default function SignIn({}: Props) {
 
   const [mfaStep, setMfaStep] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
+  const [mfaExpiresAt, setMfaExpiresAt] = useState<string | null>(null);
 
   // DEV ONLY: Prefill form with test data
   useEffect(() => {
@@ -59,27 +67,6 @@ export default function SignIn({}: Props) {
     }
   }, [session, router]);
 
-   // User only has 1 email address, auto select
-  //  useEffect(() => {
-  //   if (
-  //     session?.user && 
-  //     session.user.mfaVerified === false && 
-  //     session.user.emails?.length === 1 &&
-  //     selectedEmail === null
-  //   ) {
-  //     setSelectedEmail(session.user.emails[0].id);
-  //   }
-
-  //   if(
-  //     session?.user && 
-  //     session.user.mfaVerified === false && 
-  //     session.user.emails?.length === 1 &&
-  //     selectedEmail !== null
-  //   ) {
-  //     handleSendMfaEmail();
-  //   }
-  // }, [session, selectedEmail]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -93,7 +80,7 @@ export default function SignIn({}: Props) {
       });
 
       if (result?.error) {
-        setError('Invalid credentials');
+        setError('Details invalid or do not exist');
         setLoading(false);
       } else if (result?.ok) {
         setLoading(false);
@@ -108,10 +95,19 @@ export default function SignIn({}: Props) {
     }
   }
 
-  const handleSendMfaEmail = async () => {
+  const handleSendMfaCode = async () => {
+    setLoading(true);
+    setError('');
+
     if (selectedEmail === null && selectedPhone === null) {
       console.warn('No mfa method selected for MFA code send');
       setError('Please select an email or phone number');
+      return;
+    }
+
+    if(mfaExpiresAt && new Date(mfaExpiresAt) > new Date()) {
+      console.warn('MFA code already sent and not expired yet', { mfaExpiresAt });
+      setError('A code has already been sent. Please wait before requesting a new one.');
       return;
     }
 
@@ -120,10 +116,6 @@ export default function SignIn({}: Props) {
     if (selectedPhone) mfaMethod = 'phone';
 
     console.log('Sending MFA code via', mfaMethod, { selectedEmail, selectedPhone });
-
-
-    setLoading(true);
-    setError('');
 
     try {
       const email = session?.user?.emails?.find(e => e.id === selectedEmail);
@@ -152,6 +144,11 @@ export default function SignIn({}: Props) {
         throw new Error('Failed to send MFA code');
       }
 
+      const data = await response.json();
+      console.log('MFA code sent successfully', data);
+
+      setMfaExpiresAt(data?.expiresAt ?? null);
+
       // Move to MFA verification step
       setMfaStep(true);
       setError(null);
@@ -168,6 +165,9 @@ export default function SignIn({}: Props) {
   }: {
     mfaCode: string;
   }) => {
+    setLoading(true);
+    setError('');
+
     try {
       const result = await signIn('mfa-sign-in', {
         CedowToken: signInDetails?.CedowToken || '',
@@ -183,7 +183,7 @@ export default function SignIn({}: Props) {
         setError(null);
         setLoading(false);
       } else {
-        setError('Invalid code, please try again.');
+        setError('The code entered is incorrect. Please try again.');
       }
     } catch (err) {
       console.error('Sign in error', err);
@@ -194,58 +194,128 @@ export default function SignIn({}: Props) {
 
   if (!session) {
     return (
-      <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '80%'}}>
-        <Typography variant='body1' sx={{mb:2}}>
-          To view and manage your clearances please enter your details below.
-        </Typography>
-        <Typography variant='body1' sx={{mb:4}}>
-          If you don't have a CEDoW Token and need one please <NextLink href='/sign-up'>sign up</NextLink>.
-        </Typography>
-        { 
-          error && (
-            <Typography variant='body1' sx={{mb:4, color: 'red'}}>
-              {error}
-            </Typography>
-          )
-        }
-        <Box sx={{display: 'flex', flexDirection: 'column', gap: 1}}>
-          <TextField 
-            id='textfield-token' 
-            label='Cedow Token' 
-            variant='outlined' 
-            size='small'
-            sx={{width: '400px'}}
-            value={signInDetails?.CedowToken || ''}
-            onChange={(e) => {
-              setSignInDetails({
-                CedowToken: e.target.value, 
-                LastName: signInDetails?.LastName ?? null
-              })
-            }}
-          />
-          <TextField 
-            id='textfield-lastName' 
-            label='Last Name' 
-            variant='outlined' 
-            size='small'
-            sx={{width: '400px'}}
-            value={signInDetails?.LastName || ''}
-            onChange={(e) => {
-              setSignInDetails({
-                CedowToken: signInDetails?.CedowToken || '', 
-                LastName: e.target.value
-              })
-            }}
-          />
-        </Box>
-        <Button
-          variant='contained' 
-          sx={{mt: 2}}
-          disabled={loading}
-          onClick={handleSubmit}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: '100%',
+          px: {xs: 2, sm: 5},
+          py: {xs: 2, sm: 5},
+        }}
+      >
+        <Backdrop
+          sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+          open={loading}
         >
-          {loading ? 'Signing in...' : 'Go'}
-        </Button>
+          <CircularProgress color="inherit" />
+        </Backdrop>
+        <Paper
+          elevation={1}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            width: '100%',
+            maxWidth: 600,
+            bgcolor: 'background.paper',
+            p: {xs: 3, sm: 5},
+          }}
+        >
+          <Paper
+            elevation={0}
+            sx={{
+              width: 60,
+              height: 60,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              bgcolor: 'primary.light',
+              color: 'primary.contrastText',
+              mb: 2,
+            }}
+          >
+            <SignInIcon fontSize='large' />
+          </Paper>
+
+          <Typography variant='h4' sx={{textAlign: 'center', mb: 2}}>
+            Sign In
+          </Typography>
+          <Typography variant='body1' color='text.secondary' sx={{textAlign: 'center', mb: 1}}>
+            To view and manage your clearances please enter your details below.
+          </Typography>
+          <Typography variant='body1' color='text.secondary' sx={{textAlign: 'center', mb: 3}}>
+            If you don't have a CEDoW Token and need one please <NextLink href='/sign-up'>sign up</NextLink>.
+          </Typography>
+
+          {error && (
+            <Alert
+              severity='error'
+              variant='filled'
+              sx={{display: 'flex', justifyContent: 'center', mb: 3, width: '100%', maxWidth: 400}}
+            >
+              {error}
+            </Alert>
+          )}
+
+          <Box sx={{display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 400, mb: 4}}>
+            <TextField
+              id='textfield-token'
+              label='Cedow Token'
+              variant='outlined'
+              sx={{width: '100%'}}
+              value={signInDetails?.CedowToken || ''}
+              onChange={(e) => {
+                setSignInDetails({
+                  CedowToken: e.target.value,
+                  LastName: signInDetails?.LastName ?? null
+                })
+              }}
+            />
+            <TextField
+              id='textfield-lastName'
+              label='Last Name'
+              variant='outlined'
+              sx={{width: '100%'}}
+              value={signInDetails?.LastName || ''}
+              onChange={(e) => {
+                setSignInDetails({
+                  CedowToken: signInDetails?.CedowToken || '',
+                  LastName: e.target.value
+                })
+              }}
+            />
+          </Box>
+
+          <Button
+            variant='contained'
+            size='large'
+            sx={{width: '100%', maxWidth: 352}}
+            disabled={loading}
+            onClick={handleSubmit}
+          >
+            {loading ? 'Signing in...' : 'Go'}
+          </Button>
+
+
+          <Box sx={{mt:5}}>
+            <NextLink 
+              href='/recovery'
+              style={{textDecoration: 'none'}}
+  >
+              Forgot your Cedow Token?
+            </NextLink>
+          </Box>
+          <Box sx={{mt:2}}>
+            <NextLink 
+              href='/info' 
+              style={{ textDecoration: 'none' }}
+            > 
+              Need help or more information?
+            </NextLink>
+          </Box>
+        </Paper>
       </Box>
     )
   }
@@ -255,16 +325,6 @@ export default function SignIn({}: Props) {
     session.user.mfaVerified === false && 
     mfaStep === false
   ) {
-    // if(session.user.emails?.length > 1) {
-    //   return (
-    //     <EmailSelect 
-    //       loading={loading}
-    //       selectedEmail={selectedEmail || ''}
-    //       setSelectedEmail={setSelectedEmail}
-    //       handleSendCode={handleSendMfaEmail}
-    //     />
-    //   );
-    // }
     return (
         <SelectMfa 
           loading={loading}
@@ -272,7 +332,7 @@ export default function SignIn({}: Props) {
           selectedPhone={selectedPhone || ''}
           setSelectedPhone={setSelectedPhone}
           setSelectedEmail={setSelectedEmail}
-          handleSendCode={handleSendMfaEmail}
+          handleSendCode={handleSendMfaCode}
         />
       );
   }
@@ -282,13 +342,18 @@ export default function SignIn({}: Props) {
     session.user.mfaVerified === false && 
     mfaStep === true
   ) {
-    const email = session.user.emails?.find(e => e.id === selectedEmail);
+    const user = session.user;
+    let mfaMethod = '';
+    if(selectedEmail && user.emails) mfaMethod = user.emails.find(e => e.id === selectedEmail)?.masked ?? '';
+    if(selectedPhone && user.phones) mfaMethod = user.phones.find(p => p.id === selectedPhone)?.masked ?? '';
     return (
       <MfaCodeInput 
         loading={loading}
         error={error}
-        maskedEmail={email?.masked || ''}
+        mfaMethod={mfaMethod}
         handleVerifyMfa={handleVerifyMfa}
+        resendMfaCode={handleSendMfaCode}
+        expiresAt={mfaExpiresAt}
       />
     );
   }
