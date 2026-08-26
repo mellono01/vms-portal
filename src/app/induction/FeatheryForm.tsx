@@ -1,7 +1,9 @@
 'use client';
 
 import { 
-  useRef, 
+  useEffect,
+  useRef,
+  useState, 
 } from 'react';
 
 import { useSession, signOut } from 'next-auth/react'
@@ -13,6 +15,7 @@ import { submitInductionForm } from '../actions/submitInductionForm';
 
 // DTO
 import { PrefillForm } from '@lib/dto/feathery/PrefilledForm.dto';
+import { CircularProgress, Paper } from '@mui/material';
 
 export default function FeatheryForm({
   prefilledValues,
@@ -25,20 +28,28 @@ export default function FeatheryForm({
 }) {
   const { data: session } = useSession();
 
-  // Initialize Feathery
-  init(featherySdk, {
-    _enterpriseRegion: 'au' 
-  });
-
   const context = useRef<FormContext>(null);
+  const [ready, setReady] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // const navigateToComplete = () => {
   //   const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
   //   window.location.assign(`${basePath}/induction/complete`);
   // };
 
-  console.warn('form context', context.current);
-  console.log('form fields', context.current?.getFormFields());
+  useEffect(() => {
+    // Initialize Feathery on the client only to avoid SSR hydration mismatch
+    init(featherySdk, {
+      _enterpriseRegion: 'au'
+    });
+    setMounted(true);
+  }, [featherySdk]);
+
+  useEffect(() => {
+    if (context.current) {
+      setReady(true);
+    } 
+  }, [context.current]);
 
   const handleFormComplete = async (formContext: FormContext) => {
     console.log('Form completed', formContext);
@@ -66,13 +77,31 @@ export default function FeatheryForm({
 
   if (session && session.user) {
     return (
-      <Form 
-        formId={formId} 
-        contextRef={context}
-        initialValues={prefilledValues}
-        onFormComplete={handleFormComplete}
-        hideTestUI={true}
-      />
+      <Paper 
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: '95%',
+          // minWidth: 'auto',
+          px: 10,
+          py: 5,
+        }}
+      >
+        {/* {
+          ready !== true && <CircularProgress />
+        } */}
+        {mounted && <Form 
+          formId={formId} 
+          contextRef={context}
+          initialValues={prefilledValues}
+          onFormComplete={handleFormComplete}
+          hideTestUI={true}
+          initialLoader = {{
+            show: true,
+          }}
+        />}
+      </Paper>
     );
   }
 }

@@ -49,7 +49,6 @@ export default async function NewClearancePage({}: Props) {
     
     let prefilledValues: PrefillForm = {
       VMS_IsFullInduction: existingUser ? 'false' : 'true',
-      // VMS_Capacity: "",
       VMS_PriorClearances: clearances,
       VMS_Token: "",
       VMS_FirstName: "",

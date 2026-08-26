@@ -23,7 +23,7 @@ export default function UpgradeClearance({
   console.log('Prefilled Values', formValues);
 
   return (
-    <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', mt:5}}>
+    <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', mt:1}}>
       <FeatheryForm 
         prefilledValues={formValues} 
         featherySdk={featheryKey} 

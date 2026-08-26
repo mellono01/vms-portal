@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import postRecovery from '@/lib/api/requests/postRecovery';
 import postRecoveryEmail from '@/lib/api/requests/postRecoveryEmail';
 
+const successMessage = 'An email has been sent to you with recovery information. Please check your inbox and spam/junk folder. If you have any further issues, please contact us.';
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -32,7 +34,7 @@ export async function POST(req: NextRequest) {
           .then((emailRes) => {
             console.log('[POST][Route] Recovery email sent successfully', emailRes);
             response.success = true;
-            response.message = 'An email has been sent to you with recovery information. Please check your inbox and spam/junk folder.';
+            response.message = successMessage;
           })
           .catch((error) => {
             console.error('[POST][Route] Error sending recovery email', error);
@@ -48,7 +50,7 @@ export async function POST(req: NextRequest) {
           .then((emailRes) => {
             console.log('[POST][Route] Recovery email sent successfully', emailRes);
             response.success = true;
-            response.message = 'An email has been sent to you with recovery information. Please check your inbox and spam/junk folder.';
+            response.message = successMessage;
           })
           .catch((error) => {
             console.error('[POST][Route] Error sending recovery email', error);

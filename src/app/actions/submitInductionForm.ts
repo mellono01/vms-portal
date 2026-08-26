@@ -9,7 +9,13 @@ import {vmsApi} from '@/lib/api/vmsApiRequestor';
 
 // import type { FeatheryFieldTypes } from '@feathery/react'
 
-function prepareBody(formFields: Record<string, any>) {
+function prepareBody({
+  session, 
+  formFields
+}: {
+  session: any,
+  formFields: Record<string, any>
+}) {
   // Prepare the body for the API request
   
   const body: Record<string, any> = {
@@ -29,25 +35,30 @@ function prepareBody(formFields: Record<string, any>) {
   // Locations: string[]; (Array of Location _id strings)
   };
 
-    body.CedowToken = formFields.VMS_Token;
-    body.FormTypeId = formFields.VMS_Clearance_ObjectID;
-    body.FormType = formFields.VMS_Clearance_Type;
-    body.FirstName = formFields.VMS_FirstName;
-    body.MiddleName = formFields.VMS_MiddleName;
-    body.LastName = formFields.VMS_LastName;
-    body.DateOfBirth = formFields.VMS_DOB;
-    body.EmailAddress = formFields.VMS_Email;
-    body.PhoneNumber = formFields.VMS_Phone;
-    body.DescriptionOfServices = ""; //?
-    body.WwccNumber = formFields.VMS_WwccNumber;
-    body.WwccExpiryDate = formFields.VMS_WwccExpiry;
-    body.State = ""; //?
-    body.Locations = Array.isArray(formFields.VMS_SchoolSelect2) ? formFields.VMS_SchoolSelect2 : []; //?
-    body.Undertaking = {
-      version: 2,
-      statements: formFields.VMS_VolunteerUndertaking
-    };
+  body.CedowToken = session.cedowToken;
+  body.FormTypeId = formFields.VMS_Clearance_ObjectID;
+  body.FormType = formFields.VMS_Clearance_Type;
+  body.FirstName = session.firstName;
+  body.MiddleName = formFields.VMS_MiddleName;
+  body.LastName = session.lastName;
+  body.DateOfBirth = formFields.VMS_DOB;
+  body.PhoneNumber = formFields.VMS_Phone;
+  body.DescriptionOfServices = ""; //?
+  body.WwccNumber = formFields.VMS_WwccNumber;
+  body.WwccExpiryDate = formFields.VMS_WwccExpiry;
+  body.State = ""; //?
+  body.Locations = Array.isArray(formFields.VMS_SchoolSelect2) ? formFields.VMS_SchoolSelect2 : []; //?
+  body.Undertaking = {
+    version: 2,
+    statements: formFields.VMS_VolunteerUndertaking
+  };
   
+  if(formFields.VMS_IsFullInduction === 'true') {
+    body.EmailAddress = session.email;
+  } else {
+    body.EmailAddress = formFields.VMS_Email;
+  }
+
   return body;
 }
 
@@ -58,7 +69,7 @@ export async function submitInductionForm(
 
   // New user, full induction form.
   if(session && session.user && session.user.method === 'sign-up') {
-    const body = prepareBody(formFields);
+    const body = prepareBody({ session: session.user, formFields });
 
     const response = await vmsApi({
       endpointUrl: '/induction/new',
@@ -76,7 +87,7 @@ export async function submitInductionForm(
 
   // Exsiting user, new form.
   if(session && session.user && session.user.method === 'mfa-sign-in') {
-    const body = prepareBody(formFields);
+    const body = prepareBody({ session: session.user, formFields });
 
     const response = await vmsApi({
       endpointUrl: '/induction/existing',
