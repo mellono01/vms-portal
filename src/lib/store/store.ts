@@ -5,15 +5,17 @@ import { initialAlertsState, createAlertsSlice } from './slices/alertsSlice';
 import { initialSignInState, createSignInSlice } from './slices/signInSlice';
 import { initialSignUpState, createSignUpSlice } from './slices/signUpSlice';
 import { initialSelfServiceState, createSelfServiceSlice } from './slices/selfServiceSlice';
+import { initialTestSettingsSlice, createTestSettingsSlice } from './slices/testSettingsSlice';
 
 // DTO
 import type { AlertsState, AlertsActions, AlertsSlice } from './slices/alertsSlice';
 import type { SignInState, SignInActions, SignInSlice } from './slices/signInSlice';
 import type { SignUpState, SignUpActions, SignUpSlice } from './slices/signUpSlice';
 import type { SelfServiceState, SelfServiceActions, SelfServiceSlice } from './slices/selfServiceSlice';
+import type { TestSettingsState, TestSettingsActions, TestSettingsSlice } from './slices/testSettingsSlice';
 
-type StoreState =  AlertsState & SignInState & SignUpState & SelfServiceState;
-type StoreActions = AlertsActions & SignInActions& SignUpActions & SelfServiceActions;
+type StoreState =  AlertsState & SignInState & SignUpState & SelfServiceState & TestSettingsState;
+type StoreActions = AlertsActions & SignInActions & SignUpActions & SelfServiceActions & TestSettingsActions;
 
 export interface StoreProps {}
 
@@ -24,6 +26,7 @@ const defaultState: StoreState = {
   ...initialSignInState,
   ...initialSignUpState,
   ...initialSelfServiceState,
+  ...initialTestSettingsSlice,
 };
 
 const defaultProps: StoreProps = {};
@@ -42,6 +45,7 @@ export const createStore = (initState: StoreState = defaultState) => {
     ...createSignInSlice(set, get, store),
     ...createSignUpSlice(set, get, store),
     ...createSelfServiceSlice(set, get, store),
+    ...createTestSettingsSlice(set, get, store),
     ...initState,
   }));
 };

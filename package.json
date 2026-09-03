@@ -14,6 +14,7 @@
     "start": "next start",
     "docker:start": "docker run -p 3000:3000 feathery-test-harness",
     "docker:stop": "docker stop feathery-test-harness",
+    "tsc": "tsc -b",
     "lint": "next lint"
   },
   "dependencies": {

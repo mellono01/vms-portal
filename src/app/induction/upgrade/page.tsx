@@ -34,6 +34,7 @@ export default async function UpgradeClearancePage({ searchParams }: PageProps) 
 
     const prefilledValues: PrefillForm = {
       VMS_IsFullInduction: 'false',
+      VMS_PriorClearances: 'true',
       VMS_Capacity: 'Contractor',
       VMS_Token: '',
       VMS_FirstName: userData.FirstName || '',

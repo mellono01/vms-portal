@@ -27,7 +27,7 @@ import { Modal } from '@/app/components/Modal';
 import { ClearanceCard } from '../ClearanceCard/ClearanceCard';
 
 // API
-import putForm from '@/lib/api/requests/putForm';
+import putForm, { PutForm } from '@/lib/api/requests/putForm';
 import getEntityForms from '@/lib/api/requests/getEntityForms';
 
 // Helpers
@@ -94,8 +94,9 @@ export const EditModal: React.FC<EditModalProps> = ({
   const handleSave = async () => {
     if (isDetailsValid({ formData, wwccRequired }) && formData && formData._id) {
       console.log('Saving updated details', formData);
-      let updatedForm = { 
+      let updatedForm: PutForm = { 
         ...formData,
+        _id: formData._id,
         WwccNumber: !!formData?.WwccNumber ? formData?.WwccNumber : undefined,
         WwccExpiryDate: !!formData?.WwccExpiryDate ? dayjs(formData?.WwccExpiryDate).set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0).format(dateTimeFormat) : undefined,
         PhoneNumber: !!formData?.PhoneNumber ? formData?.PhoneNumber.trim() : undefined,

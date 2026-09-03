@@ -1,4 +1,5 @@
 interface Form {
+  ref?: number;
   AuditUserId: string;
   CedowToken: string;
   Deleted: boolean;

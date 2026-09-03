@@ -28,6 +28,7 @@ declare module "next-auth/jwt" {
     method: 'sign-in' | 'mfa-sign-in' | 'sign-up' | 'unknown';
     mfaVerified: boolean;
     cedowToken: string;
+    firstName?: string;
     lastName: string;
     emails: { id: string; masked: string; unmasked: string }[];
     details?: GetEntityFormsResponse;

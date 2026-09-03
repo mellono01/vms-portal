@@ -41,12 +41,12 @@ export default async function RootLayout({
               <ThemeProvider theme={theme}>
                 <CssBaseline enableColorScheme />
                 <SessionWrapper session={session}>
-                  <Navigation/>
-                  <main>
-                    <StoreProvider>
+                  <StoreProvider>
+                    <Navigation/>
+                    <main>
                       {children}
-                    </StoreProvider>
-                  </main>
+                    </main>
+                  </StoreProvider>
                 </SessionWrapper>
               </ThemeProvider>
             </AppRouterCacheProvider>

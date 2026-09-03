@@ -23,7 +23,7 @@ import { Modal } from '@/app/components/Modal';
 import { ClearanceCard } from './components/ClearanceCard/ClearanceCard';
 
 // API
-import putForm from '@/lib/api/requests/putForm';
+import putForm, { PutForm } from '@/lib/api/requests/putForm';
 import getEntityForms from '@/lib/api/requests/getEntityForms';
 
 interface Props {
@@ -65,10 +65,13 @@ const DeleteModal = ({
   }, [session?.user, open]);
 
   const closeClearance = async () => {
-    const updatedForm = {
+    if(!selectedForm) return;
+    const updatedForm: PutForm = {
       ...selectedForm,
+      _id: selectedForm._id ?? '',
+      CedowToken: selectedForm.CedowToken ?? '',
       FormStatus: {
-        id: process.env.NEXT_PUBLIC_FORM_STATUS_CLOSED,
+        id: process.env.NEXT_PUBLIC_FORM_STATUS_CLOSED ?? '',
         Name: "Closed"
       },
       AuditUserId: "SelfService",
@@ -135,14 +138,17 @@ const DeleteModal = ({
             You will no longer be able to use this clearance at any CEDoW sites and will not receive notifications about this clearance.
           </Typography>
           <Box sx={{display:'flex', flexDirection:{xs:'column', sm:'row'}, alignItems:'center', justifyContent: 'center', mt: 3, mb:3}}>
-            <ClearanceCard
-              key={`delete-modal-clearance-updated-${selectedForm._id}`}
-              mode='view'
-              clearance={updatedForm}
-              expanded={true}
-              setExpanded={undefined}
-              disableActions={true}
-            />
+            {updatedForm && (
+              <ClearanceCard
+                key={`delete-modal-clearance-updated-${selectedForm._id}`}
+                mode='view'
+                clearance={updatedForm}
+                disableActions={true}
+                setSelectedForm={() => {}}
+                setEditDetailsOpen={() => {}}
+                setOpenDeleteModal={() => {}}
+              />
+            )}
           </Box>
         </Box>
       </Modal>

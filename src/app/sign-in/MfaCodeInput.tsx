@@ -19,6 +19,8 @@ import {
   Refresh,
 } from '@mui/icons-material';
 
+import { useStore } from '@/lib/providers/storeProvider';
+
 const getSecondsLeft = (expiresAt: string | null) => {
   if (!expiresAt) return 600;
   return Math.max(Math.round((new Date(expiresAt).getTime() - Date.now()) / 1000), 0);
@@ -39,9 +41,20 @@ export default function MfaCodeInput({
   resendMfaCode: () => void;
   expiresAt: string | null;
 }) {
+  const {
+    testMfa,
+  } = useStore((store) => store);
+
   const [mfaCode, setMfaCode] = useState(['', '', '', '', '', '']);
   const [secondsLeft, setSecondsLeft] = useState(() => getSecondsLeft(expiresAt));
   const [buttonText, setButtonText] = useState('Verify');
+
+  useEffect(() => {
+    if(["DEV", "TEST"].includes((process.env.NEXT_PUBLIC_ENVIRONMENT_NAME_SHORT ?? '').toUpperCase()) && !!testMfa) {
+      console.log('testMfa: ', testMfa);
+      setMfaCode(testMfa ? testMfa.split('') : ['', '', '', '', '', '']);
+    }
+  }, [testMfa]);
 
   useEffect(() => {
     setSecondsLeft(getSecondsLeft(expiresAt));
@@ -125,6 +138,12 @@ export default function MfaCodeInput({
       >
         <CircularProgress color="inherit" />
       </Backdrop>
+
+      <Alert sx={{mb:5, display: 'flex', alignItems: 'center', justifyContent: 'center'}} severity="info"  >
+        <Typography variant='body2'>
+            MFA code: <Typography component="span" variant='body2' sx={{ fontWeight: 'bold' }}>{testMfa}</Typography>
+          </Typography>
+      </Alert>
 
       <Paper
         elevation={1}

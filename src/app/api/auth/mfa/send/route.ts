@@ -11,10 +11,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const token = await getToken({ req, secret: process.env.AUTH_SECRET });
     console.log('Received MFA send request', { body, token });
+    console.log('*** token: ', token.emails)
 
     // Unmask values
-    const unmaskedEmail = token?.emails?.find((e: any) => e.id === body?.EmailId)?.unmasked ?? '';
-    const unmaskedPhone = token?.phones?.find((p: any) => p.id === body?.PhoneId)?.unmasked ?? '';
+    let unmaskedEmail = Array.isArray(token?.emails) ? token.emails.find((e: any) => e.id === body?.Email)?.unmasked ?? '' : '';
+    let unmaskedPhone = Array.isArray(token?.phones) ? token.phones.find((p: any) => p.id === body?.Phone)?.unmasked ?? '' : '';
 
     console.log('Generating MFA code', { unmaskedEmail, unmaskedPhone });
     const postedMfa = await postMfa({
@@ -39,13 +40,12 @@ export async function POST(req: NextRequest) {
           .catch((error) => {
             console.error('Error sending email', error);
           });
-        } else {
-          const testEmail = "mellono01@dow.catholic.edu.au"; // Replace with actual email sending logic,
-          console.log('[dev/test] Sending MFA code to email', { testEmail, code:postedMfa.Code });
+        } else if (!!body.SendEmail) {
+          console.log('[dev/test] Sending MFA code to email', { SendPhone: body.SendPhone, code:postedMfa.Code });
           await postMfaEmail({
             Name: token?.firstName ?? '',
             MfaCode: postedMfa.Code,
-            Email: testEmail
+            Email: body.SendEmail + '@dow.catholic.edu.au'
           })
           .then((response) => {
             console.log('Email sent successfully', response);
@@ -53,6 +53,8 @@ export async function POST(req: NextRequest) {
           .catch((error) => {
             console.error('Error sending email', error);
           });
+        } else {
+          console.log('Email sending skipped (SendEmail is false)', { unmaskedEmail, code:postedMfa.Code });
         }
       }
 
@@ -73,28 +75,39 @@ export async function POST(req: NextRequest) {
           .catch((error) => {
             console.error('Error sending sms', error);
           });
-        } else {
-          let testPhone = "0429505737"; // Olivia Mobile
-          console.log('[dev/test] Sending MFA code to phone', { testPhone, code:postedMfa.Code });
+        } else if (!!body.SendPhone) {
+          console.log('[dev/test] Sending MFA code to phone', { SendPhone: body.SendPhone, code:postedMfa.Code });
           await postMfaSms({
             MfaCode: postedMfa.Code,
-            Phone: testPhone
+            Phone: body.SendPhone
           })
           .then((response) => {
             console.log('Sms sent successfully', {
               MfaCode: postedMfa.Code,
-              Phone: testPhone,
+              Phone: body.SendPhone,
               response
             });
           })
           .catch((error) => {
             console.error('Error sending sms', error);
           });
+        } else {
+          console.log('Sms sending skipped (SendPhone is false)', { unmaskedPhone, code:postedMfa.Code });
         }
       }
     }
 
-    return NextResponse.json({ success: true, expiresAt: postedMfa?.Expiry ?? null });
+    let response = { 
+      success: true, 
+      expiresAt: postedMfa?.Expiry ?? null,
+      mfaCode: null
+    }
+
+    if(["DEV", "TEST"].includes((process.env.NEXT_PUBLIC_ENVIRONMENT_NAME_SHORT ?? '').toUpperCase())) {
+      response.mfaCode = postedMfa?.Code ?? null;
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Mfa verification error', error);
     return NextResponse.json({

@@ -2,19 +2,17 @@
 
 // Library Imports
 import * as React from 'react';
+
 import {
     Box,
-    Button,
-    Divider,
     Grid2 as Grid,
     IconButton,
-    Menu,
-    MenuItem,
     Toolbar,
     Tooltip,
-    Typography
 } from '@mui/material';
+
 import {
+    DeveloperMode,
     Settings
 } from '@mui/icons-material';
 
@@ -26,6 +24,8 @@ import Image from 'next/image'
 import logo from '../../../../public/images/cedowLogo.png'
 
 // Local Imports
+import SettingsMenu from '@components/navigation/SettingsMenu'
+import DeveloperMenu from '@components/navigation/DeveloperMenu'
 import { MenuBar, MenuLogo, MenuTitle } from '@components/mui-styled/MenuBar'
 import { UserAvatar } from '@components/mui-styled/UserAvatar'
 import ColourThemeSwitch from '@components/switch/colourtheme'
@@ -41,12 +41,14 @@ export default function Navbar({
 
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
+    const [anchorElDeveloper, setAnchorElDeveloper] = React.useState<null | HTMLElement>(null);
+
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
     };
 
-    const handleCloseUserMenu = () => {
-        setAnchorElUser(null);
+    const handleOpenDeveloperMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorElDeveloper(event.currentTarget);
     };
 
     return (
@@ -61,44 +63,36 @@ export default function Navbar({
                         </Grid>
                         <Grid size={8}>
                             <MenuTitle>
-                                {process.env.NEXT_PUBLIC_APPLICATION_NAME} ({process.env.NEXT_PUBLIC_ENVIRONMENT_NAME_SHORT?.toUpperCase()})
+                                {process.env.NEXT_PUBLIC_APPLICATION_NAME} {["DEV", "TEST"].includes(process.env.NEXT_PUBLIC_ENVIRONMENT_NAME_SHORT?.toUpperCase() || '') ? '('+process.env.NEXT_PUBLIC_ENVIRONMENT_NAME_SHORT?.toUpperCase()+')' : ''}
                             </MenuTitle>
                         </Grid>
                         <Grid size={2}>
                             <Box sx={{height: '100%', display: 'flex', justifyContent:'end', alignItems: 'center'}}>
+                                {
+                                    ["DEV", "TEST"].includes(process.env.NEXT_PUBLIC_ENVIRONMENT_NAME_SHORT?.toUpperCase() || '') && (
+                                        <Box sx={{alignContent: 'center', ml:1}}>
+                                            <Tooltip title="Developer Settings">
+                                                <IconButton onClick={handleOpenDeveloperMenu} sx={{p: 0, mr: {xs:'2px', sm:'2px', md:1, lg:2}}}>
+                                                    <DeveloperMode sx={{color: 'white'}}/>
+                                                </IconButton>
+                                            </Tooltip>
+                                            <DeveloperMenu 
+                                                anchor={anchorElDeveloper} 
+                                                setAnchor={setAnchorElDeveloper}
+                                            />
+                                        </Box>
+                                    )
+                                }
                                 <Box sx={{alignContent: 'center', ml:1}}>
                                     <Tooltip title="Settings">
                                         <IconButton onClick={handleOpenUserMenu} sx={{p: 0, mr: {xs:'2px', sm:'2px', md:1, lg:2}}}>
                                             <Settings sx={{color: 'white'}}/>
                                         </IconButton>
                                     </Tooltip>
-                                    <Menu
-                                        sx={{ mt: '45px' }}
-                                        id="menu-appbar"
-                                        anchorEl={anchorElUser}
-                                        anchorOrigin={{
-                                            vertical: 'top',
-                                            horizontal: 'right',
-                                        }}
-                                        keepMounted
-                                        transformOrigin={{
-                                            vertical: 'top',
-                                            horizontal: 'right',
-                                        }}
-                                        open={Boolean(anchorElUser)}
-                                        onClose={handleCloseUserMenu}
-                                    >
-                                        <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                                            <MenuItem key={"colourScheme"} sx={{m:1}}>
-                                                <ColourThemeSwitch />
-                                            </MenuItem>
-                                            <MenuItem key={"signout"} sx={{m:1}}>
-                                                <Button onClick={() => {signOut()}}>
-                                                    Sign Out
-                                                </Button>
-                                            </MenuItem>
-                                        </Box>
-                                    </Menu>
+                                    <SettingsMenu 
+                                        anchor={anchorElUser} 
+                                        setAnchor={setAnchorElUser}
+                                    />
                                 </Box>
                                 {/* <IconButton color="inherit" onClick={toggle}>
                                     <MenuIcon fontSize="large"/>
