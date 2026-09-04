@@ -175,7 +175,7 @@ export default function SignUp({}: Props) {
 
         <Box sx={{mt: 4}}>
           <NextLink href='/recovery' style={{textDecoration: 'none'}}>
-            Forgot your Cedow Token?
+            Forgot your CEDoW Token?
           </NextLink>
         </Box>
         <Box sx={{mt: 2}}>

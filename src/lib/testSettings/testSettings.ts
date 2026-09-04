@@ -33,9 +33,11 @@ export const isTestEnvironment = (): boolean =>
 
 // `__Host-` forces the browser to reject the cookie unless it is Secure, has
 // no Domain (so it is never shared with sibling subdomains) and is scoped to
-// Path=/. That combination is unavailable over plain http, so local dev falls
-// back to the unprefixed name.
-export const useSecureCookie = process.env.NODE_ENV === 'production';
+// Path=/. That combination is unavailable over plain http, so this keys off the
+// deployed scheme rather than NODE_ENV: the lower environments are built with
+// NODE_ENV=production but served over http, and a Secure cookie written there
+// is silently dropped by the browser.
+export const useSecureCookie = (process.env.NEXT_PUBLIC_HOST_URL ?? '').startsWith('https://');
 export const TEST_SETTINGS_COOKIE = useSecureCookie
   ? '__Host-vms-test-settings'
   : 'vms-test-settings';

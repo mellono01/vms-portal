@@ -255,12 +255,12 @@ export default function SignIn({}: Props) {
           <Typography variant='h4' sx={{textAlign: 'center', mb: 2}}>
             Sign In
           </Typography>
-          <Typography variant='body1' color='text.secondary' sx={{textAlign: 'center', mb: 1}}>
-            To view and manage your clearances please enter your details below.
-          </Typography>
           <Typography variant='body1' color='text.secondary' sx={{textAlign: 'center', mb: 3}}>
-            If you don't have a CEDoW Token and need one please <NextLink href='/sign-up'>sign up</NextLink>.
+            If you have not previously completed the induction and require a CEDoW Token please <NextLink href='/sign-up'>sign up</NextLink>.
           </Typography>
+          {/* <Typography variant='body1' color='text.secondary' sx={{textAlign: 'center', mb: 3}}>
+            To view and manage your clearances please enter your details below.
+          </Typography> */}
 
           {error && (
             <Alert
@@ -275,7 +275,7 @@ export default function SignIn({}: Props) {
           <Box sx={{display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 400, mb: 4}}>
             <TextField
               id='textfield-token'
-              label='Cedow Token'
+              label='CEDoW Token'
               variant='outlined'
               sx={{width: '100%'}}
               value={signInDetails?.CedowToken || ''}
@@ -317,7 +317,7 @@ export default function SignIn({}: Props) {
               href='/recovery'
               style={{textDecoration: 'none'}}
   >
-              Forgot your Cedow Token?
+              Forgot your CEDoW Token?
             </NextLink>
           </Box>
           <Box sx={{mt:2}}>

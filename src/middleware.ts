@@ -46,6 +46,6 @@ export const config = {
   matcher: [
     '/',
     // Exclude public routes
-    '/((?!sign-in|sign-up|recovery|info|induction/complete|api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!sign-in|sign-up|welcome|recovery|info|induction/complete|api|_next/static|_next/image|favicon.ico).*)',
   ]
 }
