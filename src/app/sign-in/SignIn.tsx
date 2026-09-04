@@ -24,6 +24,8 @@ import {
 import {
   useStore,
 } from '@/lib/providers/storeProvider'
+import { useTestSettings } from '@/lib/providers/testSettingsProvider';
+import { isTestEnvironment } from '@/lib/testSettings/testSettings';
 
 // Components
 import SelectMfa from './SelectMfa';
@@ -34,19 +36,13 @@ interface Props {}
 export default function SignIn({}: Props) {
   const { data: session, update } = useSession();
   const router = useRouter();
+  const { settings: { prefillMfa, displayMfa } } = useTestSettings();
 
   const {
     signInDetails,
     setSignInDetails,
-    mobile,
-    email,
-    sendEmails,
-    sendSms,
     setTestMfa,
   } = useStore((store) => store);
-
-  const testEmail = email;
-  const testMobile = mobile;
   
   // Page State
   const [loading, setLoading] = useState(false);
@@ -136,73 +132,39 @@ export default function SignIn({}: Props) {
         return;
       }
 
-      if(["DEV", "TEST"].includes((process.env.NEXT_PUBLIC_ENVIRONMENT_NAME_SHORT ?? '').toUpperCase())) {
-        console.log('Sending MFA code in dev/test environment', { email, phone, sendEmails, sendSms, testEmail, testMobile });
-        console.log('SendEmail: ', sendEmails && !!testEmail ? testEmail : false);
-        const response = await fetch('/vms/portal/api/auth/mfa/send', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            Email: selectedEmail,
-            Phone: selectedPhone,
-            SendEmail: sendEmails && !!testEmail ? testEmail : false,
-            SendPhone: sendSms && !!testMobile ? testMobile : false,
-          })
-        });
+      // The test email/mobile overrides are read server-side from the
+      // HttpOnly test-settings cookie, so they are not sent in the body.
+      console.log('Sending MFA code in dev/test environment', { email, phone });
+      const response = await fetch('/vms/portal/api/auth/mfa/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          Email: selectedEmail,
+          Phone: selectedPhone,
+        })
+      });
 
-        if (!response.ok) {
-          console.error('Failed to send MFA code, response not ok', response);
-          throw new Error('Failed to send MFA code');
-        }
+      if (!response.ok) {
+        console.error('Failed to send MFA code, response not ok', response);
+        throw new Error('Failed to send MFA code');
+      }
 
-        const data = await response.json();
-        console.log('MFA code sent successfully', data);
+      const data = await response.json();
+      console.log('MFA code sent successfully', data);
 
+      
+      if(isTestEnvironment() && !!data?.mfaCode) {
+        console.log('MFA code for dev/test environment', data?.mfaCode);
         setTestMfa(data?.mfaCode ?? '');
-
-        setMfaExpiresAt(data?.expiresAt ?? null);
-
-        // Move to MFA verification step
-        setMfaStep(true);
-        setError(null);
       }
 
-      if(["PROD"].includes((process.env.NEXT_PUBLIC_ENVIRONMENT_NAME_SHORT ?? '').toUpperCase())) {
-        let email = session?.user?.emails?.find(e => e.id === selectedEmail);
-        let phone = session?.user?.phones?.find(p => p.id === selectedPhone);
-        
-        const response = await fetch('/vms/portal/api/auth/mfa/send', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            Email: email,
-            Phone: phone,
-          })
-        });
+      setMfaExpiresAt(data?.expiresAt ?? null);
 
-        if (!response.ok) {
-          console.error('Failed to send MFA code, response not ok', response);
-          throw new Error('Failed to send MFA code');
-        }
-
-        const data = await response.json();
-        console.log('MFA code sent successfully', data);
-
-        if(["DEV", "TEST"].includes((process.env.NEXT_PUBLIC_ENVIRONMENT_NAME_SHORT ?? '').toUpperCase())) {
-          console.log('MFA code for dev/test environment', data?.mfaCode);
-          setTestMfa(data?.mfaCode ?? '');
-        }
-
-        setMfaExpiresAt(data?.expiresAt ?? null);
-
-        // Move to MFA verification step
-        setMfaStep(true);
-        setError(null);
-      }
+      // Move to MFA verification step
+      setMfaStep(true);
+      setError(null);
     } catch (err) {
       console.error('Email selection error', err);
       setError('An error occurred');

@@ -20,6 +20,8 @@ import {
 } from '@mui/icons-material';
 
 import { useStore } from '@/lib/providers/storeProvider';
+import { useTestSettings } from '@/lib/providers/testSettingsProvider';
+import { isTestEnvironment } from '@/lib/testSettings/testSettings';
 
 const getSecondsLeft = (expiresAt: string | null) => {
   if (!expiresAt) return 600;
@@ -45,16 +47,17 @@ export default function MfaCodeInput({
     testMfa,
   } = useStore((store) => store);
 
+  const { settings: { prefillMfa, displayMfa } } = useTestSettings();
+
   const [mfaCode, setMfaCode] = useState(['', '', '', '', '', '']);
   const [secondsLeft, setSecondsLeft] = useState(() => getSecondsLeft(expiresAt));
   const [buttonText, setButtonText] = useState('Verify');
 
   useEffect(() => {
-    if(["DEV", "TEST"].includes((process.env.NEXT_PUBLIC_ENVIRONMENT_NAME_SHORT ?? '').toUpperCase()) && !!testMfa) {
-      console.log('testMfa: ', testMfa);
-      setMfaCode(testMfa ? testMfa.split('') : ['', '', '', '', '', '']);
+    if(isTestEnvironment() && prefillMfa && !!testMfa) {
+      setMfaCode(testMfa.split(''));
     }
-  }, [testMfa]);
+  }, [testMfa, prefillMfa]);
 
   useEffect(() => {
     setSecondsLeft(getSecondsLeft(expiresAt));
@@ -139,11 +142,15 @@ export default function MfaCodeInput({
         <CircularProgress color="inherit" />
       </Backdrop>
 
-      <Alert sx={{mb:5, display: 'flex', alignItems: 'center', justifyContent: 'center'}} severity="info"  >
-        <Typography variant='body2'>
-            MFA code: <Typography component="span" variant='body2' sx={{ fontWeight: 'bold' }}>{testMfa}</Typography>
-          </Typography>
-      </Alert>
+      {
+        isTestEnvironment() && !!testMfa && displayMfa && (
+          <Alert sx={{mb:5, display: 'flex', alignItems: 'center', justifyContent: 'center'}} severity="info">
+            <Typography variant='body2'>
+                [TEST ONLY] MFA code: <Typography component="span" variant='body2' sx={{ fontWeight: 'bold' }}>{testMfa}</Typography>
+              </Typography>
+          </Alert>
+        )
+      }
 
       <Paper
         elevation={1}

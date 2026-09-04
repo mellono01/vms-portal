@@ -1,7 +1,5 @@
 "use client"
 
-import { useState } from 'react';
-
 import {
     Box,
     Divider,
@@ -14,8 +12,9 @@ import {
     Typography,
 } from '@mui/material';
 
-// Store
-import { useStore } from '@/lib/providers/storeProvider';
+// Test settings (persisted in an HttpOnly cookie, not the zustand store)
+import { useTestSettings } from '@/lib/providers/testSettingsProvider';
+import { emailOptions, mobileOptions } from '@/lib/testSettings/testSettings';
 
 export default function DeveloperMenu({
     anchor,
@@ -24,20 +23,9 @@ export default function DeveloperMenu({
     anchor: null | HTMLElement;
     setAnchor: (anchor: null | HTMLElement) => void;
 }): JSX.Element {
-  const {
-    displayMfa,
-    sendEmails,
-    sendSms,
-    email,
-    mobile,
-    emailOptions,
-    mobileOptions,
-    setDisplayMfa,
-    setSendEmails,
-    setSendSms,
-    setEmail,
-    setMobile,
-  } = useStore((store) => store);
+  const { settings, updateSettings } = useTestSettings();
+  const { displayMfa, prefillMfa, sendEmails, sendSms, email, mobile } = settings;
+  
   const handleCloseDeveloperMenu = () => {
     setAnchor(null);
   };
@@ -90,7 +78,19 @@ export default function DeveloperMenu({
               color="secondary"
               checked={displayMfa}
               onChange={(e) => {
-                  setDisplayMfa(e.target.checked)
+                updateSettings({ displayMfa: e.target.checked })
+              }}
+            />
+          </Box>
+          <Box sx={{display: 'flex', flexDirection: 'row', alignContent: 'center', alignItems: 'center', justifyContent: 'center'}}>
+            <Typography variant="body2" sx={{mb:1, textAlign: 'center'}}>
+              Pre-fill MFA codes: 
+            </Typography>
+            <Switch 
+              color="secondary"
+              checked={prefillMfa}
+              onChange={(e) => {
+                updateSettings({ prefillMfa: e.target.checked })
               }}
             />
           </Box>
@@ -102,7 +102,7 @@ export default function DeveloperMenu({
               color="secondary"
               checked={sendEmails}
               onChange={(e) => {
-                setSendEmails(e.target.checked)
+                updateSettings({ sendEmails: e.target.checked })
               }}
             />
           </Box>
@@ -114,7 +114,7 @@ export default function DeveloperMenu({
               color="secondary"
               checked={sendSms}
               onChange={(e) => {
-                  setSendSms(e.target.checked)
+                updateSettings({ sendSms: e.target.checked })
               }}
             />
           </Box>
@@ -127,7 +127,7 @@ export default function DeveloperMenu({
               id="email-select"
               value={email}
               label="Email"
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => updateSettings({ email: e.target.value })}
             >
               {emailOptions.map((option) => (
                 <MenuItem key={option} value={option}>
@@ -143,9 +143,8 @@ export default function DeveloperMenu({
               id="mobile-number-select"
               value={mobile}
               label="Mobile Number"
-              onChange={(e) => setMobile(e.target.value)}
+              onChange={(e) => updateSettings({ mobile: e.target.value })}
             >
-
               {mobileOptions.map((option) => (
                 <MenuItem key={option} value={option}>
                   {option}

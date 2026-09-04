@@ -7,6 +7,8 @@ import { authOptions } from "@/auth";
 import SessionWrapper from "@/lib/SessionWrapper";
 
 import { StoreProvider } from "@/lib/providers/storeProvider";
+import { TestSettingsProvider } from "@/lib/providers/testSettingsProvider";
+import { getTestSettings } from "@/lib/testSettings/server";
 
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
@@ -31,6 +33,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession(authOptions)
+  const testSettings = await getTestSettings()
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
@@ -42,10 +45,12 @@ export default async function RootLayout({
                 <CssBaseline enableColorScheme />
                 <SessionWrapper session={session}>
                   <StoreProvider>
-                    <Navigation/>
-                    <main>
-                      {children}
-                    </main>
+                    <TestSettingsProvider settings={testSettings}>
+                      <Navigation/>
+                      <main>
+                        {children}
+                      </main>
+                    </TestSettingsProvider>
                   </StoreProvider>
                 </SessionWrapper>
               </ThemeProvider>

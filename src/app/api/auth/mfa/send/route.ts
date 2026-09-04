@@ -6,12 +6,18 @@ import postMfa from '@/lib/api/requests/postMfa';
 import postMfaEmail from '@/lib/api/requests/postMfaEmail';
 import postMfaSms from '@/lib/api/requests/postMfaSms';
 
+// Test settings (read from the HttpOnly cookie, validated against the allowlist)
+import { getTestSettingsFromRequest } from '@/lib/testSettings/server';
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+    const testSettings = getTestSettingsFromRequest(req);
+
+    console.log('Test settings: ', testSettings);
+
     console.log('Received MFA send request', { body, token });
-    console.log('*** token: ', token.emails)
 
     // Unmask values
     let unmaskedEmail = Array.isArray(token?.emails) ? token.emails.find((e: any) => e.id === body?.Email)?.unmasked ?? '' : '';
@@ -27,7 +33,7 @@ export async function POST(req: NextRequest) {
       console.log('MFA code created in DB', postedMfa);
 
       if(unmaskedEmail !== '') {
-        if(process.env.NODE_ENV === 'production') {
+        if((process.env.NEXT_PUBLIC_ENVIRONMENT_NAME_SHORT ?? '').toUpperCase() === "PROD") {
           console.log('Sending MFA code to email', { unmaskedEmail, code:postedMfa.Code });
           await postMfaEmail({
             Name: token?.name ?? '',
@@ -40,12 +46,13 @@ export async function POST(req: NextRequest) {
           .catch((error) => {
             console.error('Error sending email', error);
           });
-        } else if (!!body.SendEmail) {
-          console.log('[dev/test] Sending MFA code to email', { SendPhone: body.SendPhone, code:postedMfa.Code });
+        } else if (testSettings.sendEmails && !!testSettings.email) {
+          const fullEmail = testSettings.email + '@dow.catholic.edu.au';
+          console.log('[dev/test] Sending MFA code to email', { SendEmail: fullEmail, code:postedMfa.Code });
           await postMfaEmail({
             Name: token?.firstName ?? '',
             MfaCode: postedMfa.Code,
-            Email: body.SendEmail + '@dow.catholic.edu.au'
+            Email: fullEmail
           })
           .then((response) => {
             console.log('Email sent successfully', response);
@@ -54,12 +61,12 @@ export async function POST(req: NextRequest) {
             console.error('Error sending email', error);
           });
         } else {
-          console.log('Email sending skipped (SendEmail is false)', { unmaskedEmail, code:postedMfa.Code });
+          console.log('Email sending skipped (test settings disabled)', { unmaskedEmail, code:postedMfa.Code });
         }
       }
 
       if(unmaskedPhone !== '') {
-        if(process.env.NODE_ENV === 'production') {
+        if((process.env.NEXT_PUBLIC_ENVIRONMENT_NAME_SHORT ?? '').toUpperCase() === "PROD") {
           console.log('Sending MFA code via sms', { unmaskedPhone, code:postedMfa.Code });
           await postMfaSms({
             MfaCode: postedMfa.Code,
@@ -75,16 +82,16 @@ export async function POST(req: NextRequest) {
           .catch((error) => {
             console.error('Error sending sms', error);
           });
-        } else if (!!body.SendPhone) {
-          console.log('[dev/test] Sending MFA code to phone', { SendPhone: body.SendPhone, code:postedMfa.Code });
+        } else if (testSettings.sendSms && !!testSettings.mobile) {
+          console.log('[dev/test] Sending MFA code to phone', { SendPhone: testSettings.mobile, code:postedMfa.Code });
           await postMfaSms({
             MfaCode: postedMfa.Code,
-            Phone: body.SendPhone
+            Phone: testSettings.mobile
           })
           .then((response) => {
             console.log('Sms sent successfully', {
               MfaCode: postedMfa.Code,
-              Phone: body.SendPhone,
+              Phone: testSettings.mobile,
               response
             });
           })
@@ -92,7 +99,7 @@ export async function POST(req: NextRequest) {
             console.error('Error sending sms', error);
           });
         } else {
-          console.log('Sms sending skipped (SendPhone is false)', { unmaskedPhone, code:postedMfa.Code });
+          console.log('Sms sending skipped (test settings disabled)', { unmaskedPhone, code:postedMfa.Code });
         }
       }
     }
